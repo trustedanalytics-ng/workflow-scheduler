@@ -15,14 +15,10 @@
  */
 package org.trustedanalytics.scheduler.oozie.serialization;
 
-import org.simpleframework.xml.Attribute;
+import com.jamesmurty.utils.XMLBuilder2;
 
-import lombok.Data;
+@FunctionalInterface
+public interface XmlNode {
 
-@Data
-public class OkNode {
-
-    @Attribute(name = "to")
-    private final String to;
-
+    XMLBuilder2 asXmlBuilder();
 }

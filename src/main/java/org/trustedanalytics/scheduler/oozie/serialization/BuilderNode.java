@@ -15,18 +15,8 @@
  */
 package org.trustedanalytics.scheduler.oozie.serialization;
 
+@FunctionalInterface
+public interface BuilderNode {
 
-import org.simpleframework.xml.Element;
-
-import lombok.Data;
-
-@Data
-public class PropertyNode {
-
-    @Element(name = "name")
-    private final String name;
-
-    @Element(name = "value")
-    private final String value;
-
+    XmlNode build();
 }

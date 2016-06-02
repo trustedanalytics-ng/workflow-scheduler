@@ -15,27 +15,21 @@
  */
 package org.trustedanalytics.scheduler.oozie.serialization;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementUnion;
-
+import lombok.Builder;
 import lombok.Data;
+import java.io.IOException;
+import java.util.UUID;
 
 @Data
-public class WorkflowActionNode {
+@Builder
+public class JobContext {
 
-    @Attribute
-    private final String name;
+    private String queueName;
+    private String jobTracker;
+    private String nameNode;
+    private String sqoopMetastore;
 
-    @ElementUnion({
-        @Element(name = "sqoop", type = SqoopActionNode.class),
-        @Element(name = "fs", type = FsActionNode.class)
-    })
-    private WorkflowAction action;
-
-    @Element(name = "ok")
-    private OkNode ok;
-
-    @Element(name = "error")
-    private ErrorNode error;
+    public void resolveQueueName(UUID org) throws IOException {
+        this.queueName = org.toString();
+    }
 }

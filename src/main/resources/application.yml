@@ -17,7 +17,6 @@ endpoints.health.enabled: true
 
 sqoop.metastore: jdbc:hsqldb:hsql://localhost:16000/sqoop
 
-
 ---
 
 spring:
@@ -37,6 +36,8 @@ logging:
     org.trustedanalytics: DEBUG
 
 flyway.initOnMigrate: true
+
+namenode: ${vcap.services.hdfs-instance.credentials.HADOOP_CONFIG_KEY.fs.defaultFS}
 
 endpoints.enabled: false
 endpoints.health.enabled: true

@@ -48,6 +48,7 @@ public class SqoopJob extends AbstractCommandLine {
         optionalStringArgument("--last-value", sqoopImport.getLastValue(), sqoopImport.getIncremental());
         optionalArgument("--incremental append", sqoopImport.getIncremental());
         optionalArgument("--append", sqoopImport.getAppend());
+        requiredArgument("--connection-param-file", "driver.properties");
 
         return this;
     }
@@ -65,7 +66,6 @@ public class SqoopJob extends AbstractCommandLine {
             requiredArgument("--password", sqoopImport.getPassword() + " --");
         }
         optionalStringArgument("--schema", sqoopImport.getSchema() + " -- --", !StringUtil.isEmpty(sqoopImport.getSchema()));
-
 
         return this;
     }

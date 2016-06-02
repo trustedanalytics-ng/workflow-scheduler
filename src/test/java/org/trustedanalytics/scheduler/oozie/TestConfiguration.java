@@ -17,8 +17,6 @@ package org.trustedanalytics.scheduler.oozie;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +25,7 @@ import org.trustedanalytics.scheduler.OozieJobTimeValidator;
 import org.trustedanalytics.scheduler.OozieJobValidator;
 import org.trustedanalytics.scheduler.client.OozieClient;
 import org.trustedanalytics.scheduler.filesystem.LocalHdfsConfigProvider;
+import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.util.ConstantJobIdSupplier;
 import org.trustedanalytics.scheduler.util.InMemoryOrgSpecificSpaceFactory;
 import org.trustedanalytics.scheduler.util.MockRestOperationsFactory;
@@ -59,18 +58,20 @@ public class TestConfiguration {
     @Mock
     private OozieClient oozieClient;
 
-    private Serializer serializer = new Persister();
-
     @Bean
     public OozieService getOozieService() {
 
         oozieClient = Mockito.mock(OozieClient.class);
         return new OozieService(new InMemoryOrgSpecificSpaceFactory(),
                 oozieClient,
-                serializer,
                 new ConstantJobIdSupplier(),
                 new OozieJobValidator(new OozieJobTimeValidator()),
-                new OozieJobMapper()
+                new OozieJobMapper(),
+                JobContext.builder()
+                    .jobTracker("test_job_tracker")
+                    .sqoopMetastore("test_metastore_url:32158")
+                    .nameNode("test_namenode")
+                    .build()
                 );
     }
 
@@ -78,7 +79,5 @@ public class TestConfiguration {
     public OozieClient getOozieClient() throws IOException {
         return new OozieClient(new MockRestOperationsFactory(), new LocalHdfsConfigProvider(), new MockTokenProvider());
     }
-
-
 }
 

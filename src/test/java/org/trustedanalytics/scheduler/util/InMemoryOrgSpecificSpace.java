@@ -18,11 +18,15 @@ package org.trustedanalytics.scheduler.util;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.Path;
 import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpace;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 // no thread safe for unit tests only
 public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
@@ -37,6 +41,9 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
     @Setter
     private static String oozieDirectory = "oozieDirectory";
 
+    private static Map<Path, String> files = new HashMap<>();
+
+
     @Override
     public Path createOozieCoordinator(Path coordinatorDirPath, InputStream in) throws IOException {
         coordinatorXml = IOUtils.toString(in, "UTF-8");
@@ -46,7 +53,7 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
     @Override
     public Path createOozieWorkflow(Path workflowDirPath, InputStream in) throws IOException {
         workflowXml = IOUtils.toString(in, "UTF-8");
-        return workflowDirPath;
+        return new Path(workflowDirPath,"workflow.xml");
     }
 
     @Override
@@ -56,11 +63,30 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
 
     @Override
     public Path resolveOozieDir(String jobName, String appPath) {
-        return new Path(oozieDirectory);
+        if(StringUtils.isEmpty(appPath)) {
+            return resolveDir("oozie-jobs", jobName, "FAKE_GUID");
+        } else {
+            return resolveDir(appPath);
+        }
     }
 
     @Override
     public String getNameNode() {
         return "test_namenode";
+    }
+
+    @Override
+    public void createFile(Path path, InputStream in) {
+        try {
+            files.put(path,IOUtils.toString(in));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Path resolveDir(String path, String... more) {
+        return Arrays.asList(more)
+                .stream()
+                .reduce(new Path(path), Path::new, Path::new);
     }
 }

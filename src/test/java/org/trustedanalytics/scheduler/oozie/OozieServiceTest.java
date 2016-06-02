@@ -59,6 +59,7 @@ public class OozieServiceTest  {
         frequency.setUnit("minutes");
 
         oozieSchedule.setFrequency(frequency);
+
         sqoopScheduledImportJob.setSchedule(oozieSchedule);
 
         SqoopImport sqoopImport = new SqoopImport();
@@ -88,6 +89,8 @@ public class OozieServiceTest  {
         assertTrue(coordinatorDiff.length() == 0);
     }
 
+
+
     @Test
     public void createValidXMLConfigTestAppendModeLosAngelesTime() throws IOException {
         String timeZone = "America/Los_Angeles";
@@ -110,6 +113,7 @@ public class OozieServiceTest  {
         sqoopImport.setPassword("doe");
         sqoopScheduledImportJob.setSqoopImport(sqoopImport);
         UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
+
 
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
 
@@ -172,6 +176,7 @@ public class OozieServiceTest  {
         oozieSchedule.setFrequency(frequency);
         sqoopScheduledImportJob.setSchedule(oozieSchedule);
 
+
         SqoopImport sqoopImport = new SqoopImport();
         sqoopImport.setJdbcUri("FAKE_JDBC_URI");
         sqoopImport.setTable("table_in_database");
@@ -223,8 +228,4 @@ public class OozieServiceTest  {
         assertTrue(workflowDiff.length() == 0);
         assertTrue(coordinatorDiff.length() == 0);
     }
-
-
-
-
 }

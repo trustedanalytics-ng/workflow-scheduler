@@ -18,6 +18,7 @@ package org.trustedanalytics.scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.trustedanalytics.scheduler.client.OozieClient;
 import org.trustedanalytics.scheduler.config.Database;
 
@@ -40,6 +41,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 
 import org.trustedanalytics.scheduler.filesystem.HdfsConfigProvider;
+import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.rest.RestOperationsFactory;
 import org.trustedanalytics.scheduler.security.TokenProvider;
 import rx.Observable;
@@ -49,6 +51,15 @@ public class WorkflowSchedulerConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowSchedulerConfiguration.class);
 
+    @Value("${job.tracker}")
+    private String jobTracker;
+
+    @Value("${sqoop.metastore}")
+    private String sqoopMetastore;
+
+    @Value("${namenode}")
+    private String namenode;
+
     @Autowired
     private RestOperationsFactory restOperationsFactory;
 
@@ -57,6 +68,15 @@ public class WorkflowSchedulerConfiguration {
 
     @Autowired
     private TokenProvider oauthTokenProvider;
+
+    @Bean
+    public JobContext jobContext() {
+        return JobContext.builder()
+            .jobTracker(jobTracker)
+            .sqoopMetastore(sqoopMetastore)
+            .nameNode(namenode)
+            .build();
+    }
 
     @Bean
     public ObjectMapper objectMapper() {
