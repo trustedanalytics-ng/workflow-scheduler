@@ -18,10 +18,13 @@ package org.trustedanalytics.scheduler.filesystem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.AccessControlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.trustedanalytics.scheduler.security.TokenProvider;
 import org.trustedanalytics.scheduler.utils.StreamUtils;
+
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +105,8 @@ public class HdfsOrgSpecificSpace implements OrgSpecificSpace {
         try {
             StreamUtils.copy(in, fileSystem.create(path));
             LOGGER.info("Created file: " + path);
+        } catch (AccessControlException ex) {
+            throw new AccessDeniedException("Permission denied for given organization", ex);
         } catch (IOException ex) {
             throw new IllegalStateException("Unable to create file: " + path, ex);
         }
