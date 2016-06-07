@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler;
+package org.trustedanalytics.scheduler.utils;
 
-import org.springframework.stereotype.Component;
-import org.trustedanalytics.scheduler.oozie.OozieSchedule;
+import org.trustedanalytics.scheduler.security.TokenProvider;
 
-@Component
-public class OozieJobTimeValidator {
-
-    public void validate(OozieSchedule oozieSchedule) {
-        validateStartAndEndTime(oozieSchedule);
+public class MockTokenProvider implements TokenProvider{
+    @Override
+    public String getUserId() {
+        return "test_user";
     }
-
-    private void validateStartAndEndTime(OozieSchedule oozieSchedule) {
-        if(oozieSchedule.getStartTimeUtc().isAfter(oozieSchedule.getEndTimeUtc())) {
-            throw new IllegalArgumentException("Start time must be before end time");
-        }
-    }
-
 }

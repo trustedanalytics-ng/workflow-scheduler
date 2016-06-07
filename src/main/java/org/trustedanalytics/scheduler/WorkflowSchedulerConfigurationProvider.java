@@ -15,6 +15,7 @@
  */
 package org.trustedanalytics.scheduler;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.trustedanalytics.scheduler.config.Database;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class WorkflowSchedulerConfigurationProvider {
 
     private final TokenProvider tokenProvider;
 
+    @Value("${oozie.schedule.frequency.minimum}")
+    private long scheduleMinimumFrequency;
+
     @Autowired
     public WorkflowSchedulerConfigurationProvider(Observable<Database> databases, TokenProvider tokenProvider) {
         this.databases = databases.toList().toBlocking().single();
@@ -55,6 +59,7 @@ public class WorkflowSchedulerConfigurationProvider {
             .timezones(zones)
             .organizationDirectory(
                 String.format("hdfs://nameservice1/org/%s/user/%s/", orgId, tokenProvider.getUserId()))
+            .minimumFrequencyInSeconds(scheduleMinimumFrequency)
             .build();
     }
 }

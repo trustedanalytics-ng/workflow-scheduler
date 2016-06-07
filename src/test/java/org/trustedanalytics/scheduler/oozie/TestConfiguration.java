@@ -21,15 +21,15 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.trustedanalytics.scheduler.OozieJobMapper;
-import org.trustedanalytics.scheduler.OozieJobTimeValidator;
+import org.trustedanalytics.scheduler.OozieJobScheduleValidator;
 import org.trustedanalytics.scheduler.OozieJobValidator;
 import org.trustedanalytics.scheduler.client.OozieClient;
 import org.trustedanalytics.scheduler.filesystem.LocalHdfsConfigProvider;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
-import org.trustedanalytics.scheduler.util.ConstantJobIdSupplier;
-import org.trustedanalytics.scheduler.util.InMemoryOrgSpecificSpaceFactory;
-import org.trustedanalytics.scheduler.util.MockRestOperationsFactory;
-import org.trustedanalytics.scheduler.util.MockTokenProvider;
+import org.trustedanalytics.scheduler.utils.ConstantJobIdSupplier;
+import org.trustedanalytics.scheduler.utils.InMemoryOrgSpecificSpaceFactory;
+import org.trustedanalytics.scheduler.utils.MockRestOperationsFactory;
+import org.trustedanalytics.scheduler.utils.MockTokenProvider;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -79,7 +79,7 @@ public class TestConfiguration {
         return new OozieService(new InMemoryOrgSpecificSpaceFactory(),
                 oozieClient,
                 new ConstantJobIdSupplier(),
-                new OozieJobValidator(new OozieJobTimeValidator()),
+                new OozieJobValidator(new OozieJobScheduleValidator()),
                 new OozieJobMapper(),
                 jobContext
                 );

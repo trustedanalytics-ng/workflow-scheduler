@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.Time;
+package org.trustedanalytics.scheduler;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.trustedanalytics.scheduler.OozieJobTimeValidator;
+import org.trustedanalytics.scheduler.OozieJobScheduleValidator;
 import org.trustedanalytics.scheduler.oozie.OozieSchedule;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJob;
 
@@ -28,24 +28,19 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OozieScheduledJobTimeCorrectnessTest {
+public class OozieJobScheduleValidatorTest {
 
-    OozieJobTimeValidator oozieJobTimeValidator;
+    OozieJobScheduleValidator oozieJobScheduleValidator;
 
     @Before
     public void setUp() {
-         oozieJobTimeValidator = new OozieJobTimeValidator();
+         oozieJobScheduleValidator = new OozieJobScheduleValidator();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void should_throwIllegalArgumentException_when_startTimeIsLaterThenEndTime() throws IOException {
         SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
         sqoopScheduledImportJob.setSchedule(new OozieSchedule(LocalDateTime.of(2016, 2, 25, 15, 55), LocalDateTime.of(2016, 2, 25, 15, 54), ZoneId.of("UTC")));
-        oozieJobTimeValidator.validate(sqoopScheduledImportJob.getSchedule());
-    }
-
-
-    @Test
-    public void should_processRequest_when_startTimeAndEndTimeAreCorrect() {
+        oozieJobScheduleValidator.validate(sqoopScheduledImportJob.getSchedule());
     }
 }

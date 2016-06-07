@@ -23,15 +23,15 @@ import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJob;
 @Component
 public class OozieJobValidator {
 
-    private final OozieJobTimeValidator timeValidator;
+    private final OozieJobScheduleValidator scheduleValidator;
 
     @Autowired
-    public OozieJobValidator(OozieJobTimeValidator timeValidator) {
-        this.timeValidator = timeValidator;
+    public OozieJobValidator(OozieJobScheduleValidator scheduleValidator) {
+        this.scheduleValidator = scheduleValidator;
     }
 
     public void validate(SqoopScheduledImportJob job) {
-        timeValidator.validate(job.getSchedule());
+        scheduleValidator.validate(job.getSchedule());
         if ( StringUtils.isEmpty(job.getSqoopImport().getImportMode()) ){
             throw new IllegalArgumentException("Import mode must not be null");
         }

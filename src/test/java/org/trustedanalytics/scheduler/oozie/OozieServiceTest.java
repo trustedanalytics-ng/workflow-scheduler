@@ -25,8 +25,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImport;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJob;
-import org.trustedanalytics.scheduler.util.FileLoader;
-import org.trustedanalytics.scheduler.util.InMemoryOrgSpecificSpace;
+import org.trustedanalytics.scheduler.utils.FileLoader;
+import org.trustedanalytics.scheduler.utils.InMemoryOrgSpecificSpace;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

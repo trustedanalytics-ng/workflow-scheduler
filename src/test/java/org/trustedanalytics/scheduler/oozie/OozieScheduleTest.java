@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.Time;
+package org.trustedanalytics.scheduler.oozie;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OozieScheduleTimezoneTest {
+public class OozieScheduleTest {
 
 
     @Test

@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.util;
+package org.trustedanalytics.scheduler.utils;
 
-import java.util.function.Supplier;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.trustedanalytics.scheduler.filesystem.LocalHdfsConfigProvider;
+import org.trustedanalytics.scheduler.rest.RestOperationsFactory;
 
-public class ConstantJobIdSupplier implements Supplier<String> {
+import java.io.IOException;
 
-    private static final String jobID = "00000000-0000-0000-0000-000000000007";
+@Component
+public class MockRestOperationsFactory extends RestOperationsFactory {
 
-    @Override
-    public String get() {
-        return jobID;
+    public MockRestOperationsFactory() throws IOException {
+        super(new LocalHdfsConfigProvider());
+    }
+
+    public RestTemplate getRestTemplate()  {
+        return new MockRestTemplate();
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.util;
+package org.trustedanalytics.scheduler.utils;
 
 import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpace;
 import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpaceFactory;

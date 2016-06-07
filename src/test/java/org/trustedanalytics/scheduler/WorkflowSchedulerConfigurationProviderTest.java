@@ -22,20 +22,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.trustedanalytics.scheduler.config.Database;
 import org.trustedanalytics.scheduler.oozie.TestConfiguration;
-import org.trustedanalytics.scheduler.util.MockTokenProvider;
+import org.trustedanalytics.scheduler.utils.MockTokenProvider;
 import rx.Observable;
 
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by GER\kbalka on 4/26/16.
- */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=TestConfiguration.class)
-public class ConfigurationProviderTest {
+public class WorkflowSchedulerConfigurationProviderTest {
 
 
     WorkflowSchedulerConfigurationProvider provider;

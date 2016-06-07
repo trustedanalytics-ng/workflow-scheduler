@@ -15,6 +15,7 @@
  */
 package org.trustedanalytics.scheduler;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -36,6 +37,11 @@ public class WorkflowSchedulerExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public void handleNoPermissionToOrganizationException(AccessDeniedException e, HttpServletResponse response) throws Exception {
         ErrorLogger.logAndSendErrorResponse(LOGGER, response, FORBIDDEN, e.getMessage(), e);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public void handleIllegalArgumentException(IllegalArgumentException e, HttpServletResponse response) throws Exception {
+        ErrorLogger.logAndSendErrorResponse(LOGGER, response, BAD_REQUEST, e.getMessage(), e);
     }
 
     @ExceptionHandler(IllegalStateException.class)

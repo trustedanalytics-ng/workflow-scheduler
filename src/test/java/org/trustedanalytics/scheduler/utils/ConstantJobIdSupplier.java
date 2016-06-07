@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.util;
+package org.trustedanalytics.scheduler.utils;
 
-import org.trustedanalytics.scheduler.security.TokenProvider;
+import java.util.function.Supplier;
 
-public class MockTokenProvider implements TokenProvider{
+public class ConstantJobIdSupplier implements Supplier<String> {
+
+    private static final String jobID = "00000000-0000-0000-0000-000000000007";
+
     @Override
-    public String getUserId() {
-        return "test_user";
+    public String get() {
+        return jobID;
     }
 }

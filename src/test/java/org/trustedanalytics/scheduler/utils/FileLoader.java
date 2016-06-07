@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.util;
+package org.trustedanalytics.scheduler.utils;
 
 import org.apache.commons.io.IOUtils;
 
@@ -28,7 +28,7 @@ public class FileLoader {
                     "UTF-8"
             );
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(String.format("Could not read file resource (%s)", name));
         }
         return fileContent;
     }
@@ -41,7 +41,7 @@ public class FileLoader {
                     "UTF-8"
             );
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(String.format("Could not read file resource normalized (%s)", name));
         }
         return fileContent.replaceAll("[ \t\r]","").trim();
     }

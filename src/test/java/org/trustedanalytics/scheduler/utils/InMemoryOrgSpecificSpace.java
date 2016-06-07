@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.util;
+package org.trustedanalytics.scheduler.utils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -80,7 +80,7 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
         try {
             files.put(path,IOUtils.toString(in));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(String.format("Could not create file in path: (%s)", path));
         }
     }
 
