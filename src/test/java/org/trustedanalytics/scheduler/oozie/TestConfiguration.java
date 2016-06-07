@@ -36,21 +36,35 @@ import java.util.Properties;
 
 @Configuration
 public class TestConfiguration {
+    public static final String TEST_JOB_TRACKER = "test_job_tracker";
+    public static final String TEST_NAMENODE = "test_namenode";
+    public static final String TEST_METASTORE_URL = "test_metastore_url:32158";
+    public static final String OOZIE_API_URL = "oozie_api_url";
+    public static final String TEST_HADOOP_HOME = "test_hadoop_home";
 
     /*
      *  create sqoop.metastore property for unit test
      *
      */
 
+    private JobContext jobContext;
+
+    public TestConfiguration() {
+        jobContext = JobContext.builder().jobTracker(TEST_JOB_TRACKER)
+                                        .nameNode(TEST_NAMENODE)
+                                        .sqoopMetastore(TEST_METASTORE_URL)
+                                        .oozieApiUrl(OOZIE_API_URL).build();
+    }
+
     @Bean
     public static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
         PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
         ppc.setIgnoreResourceNotFound(true);
         final Properties properties = new Properties();
-        properties.setProperty("sqoop.metastore", "test_metastore_url:32158");
-        properties.setProperty("hadoop.home", "test_hadoop_home");
-        properties.setProperty("job.tracker", "test_job_tracker");
-        properties.setProperty("oozie.api.url", "oozie_api_url");
+        properties.setProperty("sqoop.metastore", TEST_METASTORE_URL);
+        properties.setProperty("hadoop.home", TEST_HADOOP_HOME);
+        properties.setProperty("job.tracker", TEST_JOB_TRACKER);
+        properties.setProperty("oozie.api.url", OOZIE_API_URL);
         ppc.setProperties(properties);
         return ppc;
     }
@@ -67,17 +81,14 @@ public class TestConfiguration {
                 new ConstantJobIdSupplier(),
                 new OozieJobValidator(new OozieJobTimeValidator()),
                 new OozieJobMapper(),
-                JobContext.builder()
-                    .jobTracker("test_job_tracker")
-                    .sqoopMetastore("test_metastore_url:32158")
-                    .nameNode("test_namenode")
-                    .build()
+                jobContext
                 );
     }
 
     @Bean
     public OozieClient getOozieClient() throws IOException {
-        return new OozieClient(new MockRestOperationsFactory(), new LocalHdfsConfigProvider(), new MockTokenProvider());
+
+        return new OozieClient(new MockRestOperationsFactory(), new MockTokenProvider(), jobContext);
     }
 }
 

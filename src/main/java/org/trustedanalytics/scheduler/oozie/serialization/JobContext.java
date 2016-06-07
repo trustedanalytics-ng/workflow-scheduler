@@ -17,6 +17,7 @@ package org.trustedanalytics.scheduler.oozie.serialization;
 
 import lombok.Builder;
 import lombok.Data;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ public class JobContext {
     private String jobTracker;
     private String nameNode;
     private String sqoopMetastore;
+    private String oozieApiUrl;
 
     public void resolveQueueName(UUID org) throws IOException {
         this.queueName = org.toString();

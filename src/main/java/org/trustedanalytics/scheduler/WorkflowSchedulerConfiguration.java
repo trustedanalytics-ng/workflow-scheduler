@@ -60,14 +60,8 @@ public class WorkflowSchedulerConfiguration {
     @Value("${namenode}")
     private String namenode;
 
-    @Autowired
-    private RestOperationsFactory restOperationsFactory;
-
-    @Autowired
-    private HdfsConfigProvider hdfsConfigProvider;
-
-    @Autowired
-    private TokenProvider oauthTokenProvider;
+    @Value("${oozie.api.url:host}")
+    private String oozieApiUrl;
 
     @Bean
     public JobContext jobContext() {
@@ -75,6 +69,7 @@ public class WorkflowSchedulerConfiguration {
             .jobTracker(jobTracker)
             .sqoopMetastore(sqoopMetastore)
             .nameNode(namenode)
+            .oozieApiUrl(oozieApiUrl)
             .build();
     }
 
@@ -90,12 +85,6 @@ public class WorkflowSchedulerConfiguration {
         objectMapper.registerModules(new Jdk8Module(), simpleModule);
 
         return objectMapper;
-    }
-
-
-    @Bean
-    public OozieClient oozieClient() throws IOException {
-        return new OozieClient(restOperationsFactory, hdfsConfigProvider, oauthTokenProvider);
     }
 
     @Bean
