@@ -44,7 +44,7 @@ public class OozieJobScheduleValidator {
 
     private void validateFrequency(OozieSchedule oozieSchedule) {
         Optional.ofNullable(oozieSchedule.getFrequency())
-                .filter(f -> !f.getUnit().equalsIgnoreCase("minutes") || toUnit(f.getAmount(), TimeUnit.SECONDS) > scheduleMinimumFrequency)
+                .filter(f -> !f.getUnit().equalsIgnoreCase("minutes") || toUnit(f.getAmount(), TimeUnit.SECONDS) >= scheduleMinimumFrequency)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Job schedule period can not be smaller than (%d) seconds",
                         scheduleMinimumFrequency)));
     }
