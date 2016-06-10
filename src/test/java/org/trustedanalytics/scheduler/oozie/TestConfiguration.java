@@ -15,23 +15,30 @@
  */
 package org.trustedanalytics.scheduler.oozie;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.trustedanalytics.scheduler.OozieJobMapper;
-import org.trustedanalytics.scheduler.OozieJobScheduleValidator;
-import org.trustedanalytics.scheduler.OozieJobValidator;
+import org.springframework.core.io.ClassPathResource;
+import org.trustedanalytics.scheduler.*;
 import org.trustedanalytics.scheduler.client.OozieClient;
-import org.trustedanalytics.scheduler.filesystem.LocalHdfsConfigProvider;
+import org.trustedanalytics.scheduler.config.Database;
+import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
-import org.trustedanalytics.scheduler.utils.ConstantJobIdSupplier;
-import org.trustedanalytics.scheduler.utils.InMemoryOrgSpecificSpaceFactory;
-import org.trustedanalytics.scheduler.utils.MockRestOperationsFactory;
-import org.trustedanalytics.scheduler.utils.MockTokenProvider;
+import org.trustedanalytics.scheduler.utils.*;
+import rx.Observable;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Collection;
 import java.util.Properties;
 
 @Configuration
@@ -79,8 +86,7 @@ public class TestConfiguration {
         return new OozieService(new InMemoryOrgSpecificSpaceFactory(),
                 oozieClient,
                 new ConstantJobIdSupplier(),
-                new OozieJobValidator(new OozieJobScheduleValidator()),
-                new OozieJobMapper(),
+                new SqoopJobMapper(databaseEngines()),
                 jobContext
                 );
     }
@@ -89,6 +95,31 @@ public class TestConfiguration {
     public OozieClient getOozieClient() throws IOException {
 
         return new OozieClient(new MockRestOperationsFactory(), new MockTokenProvider(), jobContext);
+    }
+
+    public Observable<Database> databaseEngines() {
+        try (final InputStream input = new ClassPathResource("databases.json").getInputStream()) {
+            TypeReference<Collection<Database>> type = new TypeReference<Collection<Database>>() {};
+            Collection<Database> databases = objectMapper().readValue(input, type);
+            return Observable.from(databases);
+        } catch (IOException e) {
+
+            throw new IllegalStateException("Unable to load supported databases");
+        }
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        final SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addDeserializer(ZoneId.class, new ZoneIdDeserializer());
+        simpleModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+
+        objectMapper.registerModules(new Jdk8Module(), simpleModule);
+
+        return objectMapper;
     }
 }
 

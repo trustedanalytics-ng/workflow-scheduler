@@ -1,0 +1,67 @@
+[
+  {
+    "name": "PostgreSQL",
+    "drivers": [
+      {
+        "name": "postgresql",
+        "version": "9.3",
+        "className": "org.postgresql.Driver",
+        "jdbcRegex" : "jdbc:postgresql:\/\/([\\w:._-]+):([1-9][0-9]{0,4})\/([\\w]+)",
+        "jdbcTemplate": "jdbc:postgresql://{host}:{port}/{database}"
+      }
+    ],
+    "schema" : {
+      "supported": true,
+      "required" : false
+    }
+
+  },
+  {
+    "name": "MySQL",
+    "drivers": [
+      {
+        "name": "mysql",
+        "version": "5.1",
+        "className": "com.mysql.jdbc.Driver",
+        "jdbcRegex" : "jdbc:mysql:\\/\\/([\\w:._-]+):([1-9][0-9]{0,4})\\/([\\w]+)",
+        "jdbcTemplate": "jdbc:mysql://{host}:{port}/{database}"
+      }
+    ],
+    "schema" : {
+      "supported": false,
+      "required" : false
+    }
+  },
+  {
+    "name": "Oracle",
+    "drivers": [
+      {
+        "name": "oracle:thin",
+        "version": "5.1",
+        "className": "",
+        "jdbcRegex" : "jdbc:oracle:thin:[@\\/\\/]{1,2}([\\w:._-]+):([1-9][0-9]{0,4})[/:]([\\w]+)",
+        "jdbcTemplate": "jdbc:oracle:thin:@{host}:{port}:{database}"
+      }
+    ],
+    "schema" : {
+      "supported": "true",
+      "required" : "false"
+    }
+  },
+  {
+    "name": "Teradata",
+    "drivers": [
+      {
+        "name" : "teradata",
+        "version" : "1.0",
+        "className": "com.teradata.jdbc.TeraDriver",
+        "jdbcRegex" : "jdbc:teradata://([\\w:._-]+)/DATABASE=([\\w]+),DBS_PORT=([1-9][0-9]{0,4})",
+        "jdbcTemplate": "jdbc:teradata://{host}/DATABASE={database},DBS_PORT={port}"
+      }
+    ],
+    "schema" : {
+      "supported": true,
+      "required" : false
+    }
+  }
+]

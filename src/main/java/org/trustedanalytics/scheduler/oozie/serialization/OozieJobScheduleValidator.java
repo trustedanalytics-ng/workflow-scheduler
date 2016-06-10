@@ -13,22 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler;
+package org.trustedanalytics.scheduler.oozie.serialization;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.google.common.collect.ImmutableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.trustedanalytics.scheduler.oozie.OozieFrequency;
 import org.trustedanalytics.scheduler.oozie.OozieSchedule;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class OozieJobScheduleValidator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OozieJobScheduleValidator.class);
 
     @Value("${oozie.schedule.frequency.minimum}")
     private long scheduleMinimumFrequency;
+
+    private final Set<String> timeUnits = ImmutableSet.of("minutes", "hours", "days", "months");
 
     public void validate(OozieSchedule oozieSchedule) {
         validateStartAndEndTime(oozieSchedule);
@@ -43,6 +47,10 @@ public class OozieJobScheduleValidator {
     }
 
     private void validateFrequency(OozieSchedule oozieSchedule) {
+        LOGGER.info("Schedule frequency unit: {}", oozieSchedule.getFrequency().getUnit());
+        if (! timeUnits.contains(oozieSchedule.getFrequency().getUnit().toLowerCase())) {
+            throw new IllegalArgumentException("Unknown job freqency: " + oozieSchedule.getFrequency());
+        }
         Optional.ofNullable(oozieSchedule.getFrequency())
                 .filter(f -> !f.getUnit().equalsIgnoreCase("minutes") || toUnit(f.getAmount(), TimeUnit.SECONDS) >= scheduleMinimumFrequency)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Job schedule period can not be smaller than (%d) seconds",

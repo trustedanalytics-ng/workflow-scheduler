@@ -15,8 +15,7 @@
  */
 package org.trustedanalytics.scheduler.oozie;
 
-import org.trustedanalytics.scheduler.OozieJobMapper;
-import org.trustedanalytics.scheduler.OozieJobValidator;
+import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.client.OozieClient;
 import org.trustedanalytics.scheduler.client.OozieJobId;
 import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpace;
@@ -47,24 +46,21 @@ public class OozieService {
     private final OrgSpecificSpaceFactory orgSpecificSpaceFactory;
     private final OozieClient oozieClient;
     private final Supplier<String> random;
-    private OozieJobValidator jobValidator;
-    private OozieJobMapper jobMapper;
+    private SqoopJobMapper jobMapper;
     private JobContext jobContext;
 
     @Autowired
     public OozieService(OrgSpecificSpaceFactory orgSpecificSpaceFactory, OozieClient oozieClient, Supplier jobIdSupplier,
-                        OozieJobValidator oozieJobValidator, OozieJobMapper oozieJobMapper, JobContext jobContext) {
+                          SqoopJobMapper sqoopJobMapper, JobContext jobContext) {
         this.orgSpecificSpaceFactory = orgSpecificSpaceFactory;
         this.oozieClient = oozieClient;
         this.random = jobIdSupplier;
-        this.jobValidator = oozieJobValidator;
-        this.jobMapper = oozieJobMapper;
+        this.jobMapper = sqoopJobMapper;
         this.jobContext = jobContext;
     }
 
     public OozieJobId sqoopScheduledImportJob(SqoopScheduledImportJob job, UUID orgId) throws IOException {
 
-        jobValidator.validate(job);
         jobMapper.adjust(job);
 
         final OrgSpecificSpace space = orgSpecificSpaceFactory.getOrgSpecificSpace(orgId);

@@ -5,18 +5,15 @@
       {
         "name": "postgresql",
         "version": "9.3",
-        "className": "org.postgresql.Driver"
+        "className": "org.postgresql.Driver",
+        "jdbcRegex" : "jdbc:postgresql:\/\/([\\w:._-]+):([1-9][0-9]{0,4})\/([\\w]+)",
+        "jdbcTemplate": "jdbc:postgresql://{host}:{port}/{database}"
       }
-    ]
-  },
-  {
-    "name": "MySQL",
-    "drivers": [
-      {
-        "name": "mysql",
-        "version": "5.1",
-        "className": "org.mysql.Driver"
-      }
-    ]
+    ],
+    "schema" : {
+      "supported": true,
+      "required" : false
+    }
+
   }
 ]

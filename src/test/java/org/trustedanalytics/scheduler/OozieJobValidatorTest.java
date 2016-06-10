@@ -19,8 +19,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.trustedanalytics.scheduler.oozie.jobs.OozieJobValidator;
 import org.trustedanalytics.scheduler.oozie.serialization.OozieJobScheduleValidator;
+import org.trustedanalytics.scheduler.oozie.OozieFrequency;
 import org.trustedanalytics.scheduler.oozie.OozieSchedule;
+import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImport;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJob;
 
 import java.io.IOException;
@@ -28,21 +31,36 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OozieJobScheduleValidatorTest {
+public class OozieJobValidatorTest {
 
-    OozieJobScheduleValidator oozieJobScheduleValidator;
+    OozieJobValidator validator;
 
     @Before
     public void setUp() {
-         oozieJobScheduleValidator = new OozieJobScheduleValidator();
+         validator = new OozieJobValidator(new OozieJobScheduleValidator());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void should_throwIllegalArgumentException_when_startTimeIsLaterThenEndTime() throws IOException {
+    public void importModeIncrementalMissingCheckColumn_throws_exception() throws IOException {
         SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
-        sqoopScheduledImportJob.setSchedule(new OozieSchedule(LocalDateTime.of(2016, 2, 25, 15, 55), LocalDateTime.of(2016, 2, 25, 15, 54), ZoneId.of("UTC")));
-        oozieJobScheduleValidator.validate(sqoopScheduledImportJob.getSchedule());
-    }
+        sqoopScheduledImportJob.setName("test");
+        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,8,15),
+                LocalDateTime.of(2077,7,6,8,15), ZoneId.of("UTC"));
+        OozieFrequency frequency = new OozieFrequency();
+        frequency.setAmount(10L);
+        frequency.setUnit("minutes");
 
+        oozieSchedule.setFrequency(frequency);
+        sqoopScheduledImportJob.setSchedule(oozieSchedule);
+
+        SqoopImport sqoopImport = new SqoopImport();
+        sqoopImport.setJdbcUri("FAKE_JDBC_URI");
+        sqoopImport.setTable("table_in_database");
+        sqoopImport.setImportMode("incremental");
+        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
+
+        validator.validate(sqoopScheduledImportJob);
+
+    }
 
 }

@@ -49,6 +49,7 @@ public class SqoopJob extends AbstractCommandLine {
         optionalArgument("--incremental append", sqoopImport.getIncremental());
         optionalArgument("--append", sqoopImport.getAppend());
         requiredArgument("--connection-param-file", "driver.properties");
+        optionalStringArgument("--driver",sqoopImport.getDriver(),!StringUtils.isEmpty(sqoopImport.getDriver()));
 
         return this;
     }
