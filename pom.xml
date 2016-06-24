@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.7</version>
+    <version>0.5.8</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -115,10 +115,6 @@
             <groupId>com.jamesmurty.utils</groupId>
             <artifactId>java-xmlbuilder</artifactId>
             <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
