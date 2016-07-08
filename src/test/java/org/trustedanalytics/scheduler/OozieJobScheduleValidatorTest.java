@@ -44,5 +44,4 @@ public class OozieJobScheduleValidatorTest {
         oozieJobScheduleValidator.validate(sqoopScheduledImportJob.getSchedule());
     }
 
-
 }

@@ -13,41 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler;
+package org.trustedanalytics.scheduler.oozie;
 
-import org.junit.Before;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.trustedanalytics.scheduler.oozie.TestConfiguration;
-import org.trustedanalytics.scheduler.utils.MockTokenProvider;
+import org.trustedanalytics.scheduler.DatabaseProvider;
+import org.trustedanalytics.scheduler.config.Database;
 
-import java.util.UUID;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=TestConfiguration.class)
-public class WorkflowSchedulerConfigurationProviderTest {
-
-
-    WorkflowSchedulerConfigurationProvider provider;
-
-    @Autowired
-    private DatabaseProvider databaseProvider;
-
-    @Before
-    public void prepare() {
-        provider = new WorkflowSchedulerConfigurationProvider(databaseProvider, new MockTokenProvider());
-    }
+public class DatabaseProviderTest {
 
     @Test
-    public void testTimezoneFiltering() {
-        WorkflowSchedulerConfigurationEntity conf = provider.getConfiguration(UUID.randomUUID());
-        assertTrue(conf.getTimezones().contains("Etc/GMT+5"));
-        assertTrue(conf.getTimezones().contains("Europe/Warsaw"));
-        assertTrue(conf.getTimezones().contains("GMT"));
+    public void filterOnlyOracleConfiguration() {
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setProperty("sqoop.database.oracle", "true");
+        DatabaseProvider engines = new DatabaseProvider(mockEnv, new ObjectMapper());
+        List<Database> dbs = engines.getEnabledEngines().toList().toBlocking().single();
+        assertEquals(dbs.size(), 1);
+        assertTrue(dbs.get(0).getName().toLowerCase().equals("oracle"));
     }
+
 }

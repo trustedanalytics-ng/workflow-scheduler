@@ -18,6 +18,7 @@ package org.trustedanalytics.scheduler.oozie.jobs.sqoop;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.trustedanalytics.scheduler.DatabaseProvider;
 import org.trustedanalytics.scheduler.config.Database;
 import rx.Observable;
 
@@ -27,8 +28,8 @@ public class SqoopJobMapper {
     private final Observable<Database> databases;
 
     @Autowired
-    public SqoopJobMapper(Observable<Database> databases) {
-        this.databases = databases;
+    public SqoopJobMapper(DatabaseProvider databaseProvider) {
+        this.databases = databaseProvider.getEnabledEngines();
     }
 
     public void adjust(SqoopScheduledImportJob job) {

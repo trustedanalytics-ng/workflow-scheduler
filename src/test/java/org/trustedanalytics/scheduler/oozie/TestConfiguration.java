@@ -15,34 +15,33 @@
  */
 package org.trustedanalytics.scheduler.oozie;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.env.MockEnvironment;
 import org.trustedanalytics.scheduler.*;
 import org.trustedanalytics.scheduler.client.OozieClient;
-import org.trustedanalytics.scheduler.config.Database;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.utils.*;
-import rx.Observable;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collection;
 import java.util.Properties;
 
 @Configuration
 public class TestConfiguration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestConfiguration.class);
+
     public static final String TEST_JOB_TRACKER = "test_job_tracker";
     public static final String TEST_NAMENODE = "test_namenode";
     public static final String TEST_METASTORE_URL = "test_metastore_url:32158";
@@ -86,26 +85,14 @@ public class TestConfiguration {
         return new OozieService(new InMemoryOrgSpecificSpaceFactory(),
                 oozieClient,
                 new ConstantJobIdSupplier(),
-                new SqoopJobMapper(databaseEngines()),
+                new SqoopJobMapper(databaseProvider()),
                 jobContext
                 );
     }
 
     @Bean
     public OozieClient getOozieClient() throws IOException {
-
         return new OozieClient(new MockRestOperationsFactory(), new MockTokenProvider(), jobContext);
-    }
-
-    public Observable<Database> databaseEngines() {
-        try (final InputStream input = new ClassPathResource("databases.json").getInputStream()) {
-            TypeReference<Collection<Database>> type = new TypeReference<Collection<Database>>() {};
-            Collection<Database> databases = objectMapper().readValue(input, type);
-            return Observable.from(databases);
-        } catch (IOException e) {
-
-            throw new IllegalStateException("Unable to load supported databases");
-        }
     }
 
     @Bean
@@ -120,6 +107,14 @@ public class TestConfiguration {
         objectMapper.registerModules(new Jdk8Module(), simpleModule);
 
         return objectMapper;
+    }
+
+    @Bean
+    public DatabaseProvider databaseProvider() {
+        MockEnvironment mockEnv = new MockEnvironment();
+        mockEnv.setProperty("sqoop.database.postgresql","true");
+        LOGGER.info("postgres enabled");
+        return new DatabaseProvider(mockEnv, objectMapper());
     }
 }
 

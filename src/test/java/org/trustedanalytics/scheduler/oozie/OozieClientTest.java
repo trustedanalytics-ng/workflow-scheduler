@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.trustedanalytics.scheduler.client.OozieClient;
@@ -35,6 +36,7 @@ public class OozieClientTest  {
     OozieClient oozieClient;
 
 
+
     @Test
     public void nop() {
         assertTrue(true);
@@ -42,6 +44,7 @@ public class OozieClientTest  {
 
    // @Test
     public void submitCoordinatedJob() {
+
         oozieClient.submitCoordinatedJob("jobDefinitionDirectory");
         System.out.println("Get body" + MockRestTemplate.getRequestBody().toString());
 

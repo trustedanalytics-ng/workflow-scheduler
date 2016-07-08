@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImport;
@@ -41,6 +42,9 @@ import static org.junit.Assert.assertTrue;
 public class OozieServiceTest  {
 
     @Autowired
+    private Environment env;
+
+    @Autowired
     OozieService oozieService;
 
     @Before
@@ -50,6 +54,7 @@ public class OozieServiceTest  {
 
     @Test
     public void createValidXMLConfigTestAppendModeUTC() throws IOException {
+
         SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
         sqoopScheduledImportJob.setName("test");
         OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,8,15),
