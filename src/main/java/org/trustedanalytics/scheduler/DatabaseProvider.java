@@ -43,11 +43,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DatabaseProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseProvider.class);
-    private final Environment env;
-    private final ObjectMapper objectMapper;
+    private static final String SQOOP_DB_PROPERTY_PREFIX = "sqoop.database";
     private static final List<String> ALL_DATABASES = ImmutableList.of("postgresql", "oracle", "mysql", "teradata");
 
-    private final static String SQOOP_DB_PROPERTY_PREFIX = "sqoop.database";
+    private final Environment env;
+    private final ObjectMapper objectMapper;
+
 
     @Autowired
     public DatabaseProvider(Environment env, ObjectMapper objectMapper) {
@@ -72,7 +73,7 @@ public class DatabaseProvider {
     }
 
     private Collection<String> enabledDatabasesFromEnv() {
-        return ALL_DATABASES.stream().filter(db ->  isEnabledFromEnv(db)).collect(Collectors.toList());
+        return ALL_DATABASES.stream().filter(this::isEnabledFromEnv).collect(Collectors.toList());
     }
 
     private Boolean isEnabledFromEnv(String db) {
