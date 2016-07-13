@@ -26,11 +26,12 @@ import org.trustedanalytics.scheduler.client.OozieJobId;
 import org.trustedanalytics.scheduler.client.OozieJobLogs;
 import org.trustedanalytics.scheduler.client.OozieWorkflowJobInformationExtended;
 import org.trustedanalytics.scheduler.filtering.OozieJobFilter;
-import org.trustedanalytics.scheduler.oozie.jobs.OozieJobValidator;
 import org.trustedanalytics.scheduler.persistence.domain.OozieJobEntity;
 import org.trustedanalytics.scheduler.persistence.repository.OozieJobRepository;
 import org.trustedanalytics.scheduler.oozie.OozieService;
+import org.trustedanalytics.scheduler.oozie.jobs.OozieScheduledJobValidator;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJob;
+import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJobValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -52,14 +53,13 @@ public class WorkflowSchedulerController {
     private final OozieJobFilter oozieJobFilter;
     private final OozieJobRepository oozieJobRepository;
     private final WorkflowSchedulerConfigurationProvider configurationProvider;
-    private final OozieJobValidator validator;
+    private final SqoopScheduledImportJobValidator sqoopScheduledImportJobValidator;
+    private final OozieScheduledJobValidator oozieScheduledJobValidator;
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        binder.setValidator(validator);
+        binder.addValidators(sqoopScheduledImportJobValidator, oozieScheduledJobValidator);
     }
-
-
 
     @Autowired
     public WorkflowSchedulerController(OozieClient oozieClient,
@@ -67,13 +67,15 @@ public class WorkflowSchedulerController {
                                        OozieJobRepository oozieJobRepository,
                                        OozieJobFilter oozieJobFilter,
                                        WorkflowSchedulerConfigurationProvider configurationProvider,
-                                       OozieJobValidator validator) {
+                                       SqoopScheduledImportJobValidator sqoopScheduledImportJobValidator,
+                                       OozieScheduledJobValidator oozieScheduledJobValidator) {
         this.oozieClient = oozieClient;
         this.oozieService = oozieService;
         this.oozieJobRepository = oozieJobRepository;
         this.oozieJobFilter = oozieJobFilter;
         this.configurationProvider = configurationProvider;
-        this.validator = validator;
+        this.sqoopScheduledImportJobValidator = sqoopScheduledImportJobValidator;
+        this.oozieScheduledJobValidator = oozieScheduledJobValidator;
     }
 
     @ApiOperation(
@@ -82,8 +84,8 @@ public class WorkflowSchedulerController {
     )
     @RequestMapping(value = "/rest/v1/oozie/schedule_job/coordinated", method = RequestMethod.POST)
     public OozieJobId scheduleOozieCoordinatedJob(
-            @RequestParam(value="org") Optional<UUID> org,@Valid
-            @RequestBody SqoopScheduledImportJob sqoopScheduledImportJob) throws IOException {
+            @RequestParam(value="org") Optional<UUID> org,
+            @RequestBody @Valid SqoopScheduledImportJob sqoopScheduledImportJob) throws IOException {
         OozieJobId jobId = oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, org.get());
         oozieJobRepository.save(new OozieJobEntity(jobId.getId(), org.get().toString()));
         return jobId;

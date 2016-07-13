@@ -13,43 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.scheduler.oozie.serialization;
+package org.trustedanalytics.scheduler.oozie;
 
-import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.trustedanalytics.scheduler.oozie.OozieSchedule;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class OozieJobScheduleValidator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OozieJobScheduleValidator.class);
+public class OozieScheduleValidator implements Validator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OozieScheduleValidator.class);
+
+    private final Set<String> timeUnits = new HashSet<>(Arrays.asList("minutes", "hours", "days", "months"));
 
     @Value("${oozie.schedule.frequency.minimum}")
     private long scheduleMinimumFrequency;
 
-    private final Set<String> timeUnits = ImmutableSet.of("minutes", "hours", "days", "months");
-
-    public void validate(OozieSchedule oozieSchedule) {
-        validateStartAndEndTime(oozieSchedule);
-        validateFrequency(oozieSchedule);
+    @Override
+    public boolean supports(Class<?> aClass) {
+        return OozieSchedule.class.equals(aClass);
     }
 
-    private void validateStartAndEndTime(OozieSchedule oozieSchedule) {
+    @Override
+    public void validate(Object o, Errors errors) {
+        OozieSchedule oozieSchedule = (OozieSchedule) o;
+        validateStartAndEndTime(oozieSchedule, errors);
+        validateFrequency(oozieSchedule, errors);
+    }
+
+    private void validateStartAndEndTime(OozieSchedule oozieSchedule, Errors errors) {
         if(oozieSchedule.getStartTimeUtc().isAfter(oozieSchedule.getEndTimeUtc())) {
-            throw new IllegalArgumentException(String.format("Start time (%s) must be before end time (%s)",
+            errors.rejectValue("startTimeUtc", "startTimeUtc.invalid", String.format("Start time (%s) must be before end time (%s)",
                     oozieSchedule.getStartTimeUtc(), oozieSchedule.getEndTimeUtc()));
         }
     }
 
-    private void validateFrequency(OozieSchedule oozieSchedule) {
+    private void validateFrequency(OozieSchedule oozieSchedule, Errors errors) {
         LOGGER.info("Schedule frequency unit: {}", oozieSchedule.getFrequency().getUnit());
         if (! timeUnits.contains(oozieSchedule.getFrequency().getUnit().toLowerCase())) {
-            throw new IllegalArgumentException("Unknown job freqency: " + oozieSchedule.getFrequency());
+            errors.rejectValue("frequency.unit", "frequency.unit.unknown", "Unknown job freqency unit: "
+                    + oozieSchedule.getFrequency().getUnit());
         }
         Optional.ofNullable(oozieSchedule.getFrequency())
                 .filter(f -> !f.getUnit().equalsIgnoreCase("minutes") || toUnit(f.getAmount(), TimeUnit.SECONDS) >= scheduleMinimumFrequency)

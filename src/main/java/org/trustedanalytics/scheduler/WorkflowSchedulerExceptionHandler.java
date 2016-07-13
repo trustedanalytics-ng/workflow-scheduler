@@ -22,12 +22,16 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.trustedanalytics.utils.errorhandling.ErrorLogger;
 import org.trustedanalytics.utils.errorhandling.RestErrorHandler;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @ControllerAdvice
 public class WorkflowSchedulerExceptionHandler {
@@ -53,5 +57,18 @@ public class WorkflowSchedulerExceptionHandler {
     public void handleException(Exception e, HttpServletResponse response) throws Exception {
         RestErrorHandler defaultErrorHandler = new RestErrorHandler();
         defaultErrorHandler.handleException(e, response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public void handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletResponse response) throws Exception {
+        BindingResult result = e.getBindingResult();
+        List<FieldError> fieldErrors = result.getFieldErrors();
+        ErrorLogger.logAndSendErrorResponse(LOGGER, response, BAD_REQUEST, processFieldErrors(fieldErrors), e);
+    }
+
+    private String processFieldErrors(List<FieldError> fieldErrors) {
+        return fieldErrors.stream()
+                .map(FieldError::getDefaultMessage)
+                .reduce("Validation errors: ", (m1, m2) -> m1 + m2 + "; ");
     }
 }
