@@ -22,25 +22,30 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Component
-public class SqoopScheduledImportJobValidator implements Validator {
+public class SqoopImportJobValidator implements Validator {
 
     private final SqoopImportValidator sqoopImportValidator;
 
     @Autowired
-    public SqoopScheduledImportJobValidator(SqoopImportValidator sqoopImportValidator) {
+    public SqoopImportJobValidator(SqoopImportValidator sqoopImportValidator) {
         this.sqoopImportValidator = sqoopImportValidator;
     }
 
     @Override
     public boolean supports(Class<?> aClass) {
-        return SqoopScheduledImportJob.class.equals(aClass);
+        return SqoopScheduledImportJob.class.equals(aClass) | SqoopImportJob.class.equals((aClass));
     }
 
     @Override
     public void validate(Object o, Errors errors) {
-        SqoopScheduledImportJob sqoopScheduledImportJob = (SqoopScheduledImportJob) o;
+        SqoopImport sqoopImport;
+        if(SqoopScheduledImportJob.class.equals(o.getClass())) {
+            sqoopImport = ((SqoopScheduledImportJob) o).getSqoopImport();
+        } else {
+            sqoopImport = ((SqoopImportJob) o).getSqoopImport();
+        }
         errors.pushNestedPath("sqoopImport");
-        ValidationUtils.invokeValidator(this.sqoopImportValidator, sqoopScheduledImportJob.getSqoopImport(), errors);
+        ValidationUtils.invokeValidator(sqoopImportValidator, sqoopImport, errors);
         errors.popNestedPath();
     }
 }

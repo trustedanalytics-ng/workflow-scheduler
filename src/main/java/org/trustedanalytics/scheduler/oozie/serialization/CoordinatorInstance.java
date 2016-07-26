@@ -31,7 +31,6 @@ public class CoordinatorInstance {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinatorInstance.class);
 
     private final String name;
-    private final String targetDir;
     private final String oozieLibpath;
     private final String appPath;
     private final String frequency;
@@ -43,7 +42,6 @@ public class CoordinatorInstance {
 
     private CoordinatorInstance(CoordinatorInstanceBuilder builder) {
         this.name = Objects.requireNonNull(builder.name, "name");
-        this.targetDir = Objects.requireNonNull(builder.targetDir, "targetDir");
         this.oozieLibpath = Objects.requireNonNull(builder.oozieLibpath, "oozieLibpath");
         this.oozieUseSystemLibpath = Objects.requireNonNull(builder.oozieUseSystemLibpath, "oozieUseSystemLibpath");
         this.appPath = Objects.requireNonNull(builder.appPath, "appPath");
@@ -60,7 +58,6 @@ public class CoordinatorInstance {
 
     public static class CoordinatorInstanceBuilder {
         private String name;
-        private String targetDir;
         private String oozieLibpath;
         private String appPath;
         private String frequency;
@@ -76,11 +73,6 @@ public class CoordinatorInstance {
 
         public CoordinatorInstanceBuilder setName(String name) {
             this.name = name;
-            return this;
-        }
-
-        public CoordinatorInstanceBuilder setTargetDir(String targetDir) {
-            this.targetDir = targetDir;
             return this;
         }
 
@@ -142,7 +134,6 @@ public class CoordinatorInstance {
                       .importXMLBuilder(property("jobTracker", jobContext.getJobTracker()))
                       .importXMLBuilder(property("nameNode", jobContext.getNameNode()))
                       .importXMLBuilder(property("queueName", jobContext.getQueueName()))
-                      .importXMLBuilder(property("targetDir", targetDir))
                       .importXMLBuilder(property("oozie.libpath", oozieLibpath))
                       .importXMLBuilder(property("oozie.use.system.libpath", oozieUseSystemLibpath.toString()))
                 .asString(outputProperties);

@@ -17,6 +17,8 @@ package org.trustedanalytics.scheduler.oozie.serialization;
 
 import com.jamesmurty.utils.XMLBuilder2;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.trustedanalytics.scheduler.oozie.serialization.SqoopNode.WorkflowActionNodeBuilder;
 import org.trustedanalytics.scheduler.oozie.serialization.CreateFileNode.WorkflowCreateFileBuilder;
 import org.trustedanalytics.scheduler.oozie.serialization.DecisionNode.WorkflowDecisionNodeBuilder;
@@ -29,6 +31,8 @@ import java.util.Objects;
 import java.util.Properties;
 
 public class WorkflowInstance {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowInstance.class);
 
     private final String workflowName;
     private final String errorMsg;
@@ -60,9 +64,9 @@ public class WorkflowInstance {
 
     public InputStream asStream() {
         XMLBuilder2 builder = XMLBuilder2.create("workflow-app");
-        builder.a("name",workflowName);
-        builder.ns("uri:oozie:workflow:0.4");
-        builder.e("start").a("to",startNodeName).up();
+        builder.a("name", workflowName)
+                .ns("uri:oozie:workflow:0.4")
+                .e("start").a("to", startNodeName).up();
         for (BuilderNode a : actionNodes) {
             builder.importXMLBuilder(a.build().asXmlBuilder());
         }
@@ -70,7 +74,7 @@ public class WorkflowInstance {
                   .e("message").t(errorMsg).up()
                   .up().e("end").a("name","end");
         String xml =  builder.asString(xmlProperties);
-        System.out.println("Xml created : " + xml);
+        LOGGER.debug("Xml created: {}", xml);
         return IOUtils.toInputStream(xml, StandardCharsets.UTF_8);
     }
 

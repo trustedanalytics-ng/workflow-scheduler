@@ -22,20 +22,22 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.Objects;
 
-public class SqoopJob extends AbstractCommandLine {
+public class SqoopCommand extends AbstractCommandLine {
 
     private final String sqoopMetastore;
+    private final String name;
 
-    public SqoopJob(String sqoopMetastore) {
+    public SqoopCommand(String name, String sqoopMetastore) {
+        this.name = Objects.requireNonNull(name, "Command name is required");
         this.sqoopMetastore = Objects.requireNonNull(sqoopMetastore, "Sqoop metastore is required");
     }
 
     @Override
     public String name() {
-        return "job";
+        return name;
     }
 
-    public SqoopJob create(String jobId, SqoopImport sqoopImport) {
+    public SqoopCommand create(String jobId, SqoopImport sqoopImport) {
         requiredArgument("--create", jobId);
         requiredArgument("--meta-connect", sqoopMetastore);
         requiredArgument("--");
@@ -49,12 +51,12 @@ public class SqoopJob extends AbstractCommandLine {
         optionalArgument("--incremental append", sqoopImport.getIncremental());
         optionalArgument("--append", sqoopImport.getAppend());
         requiredArgument("--connection-param-file", "driver.properties");
-        optionalStringArgument("--driver",sqoopImport.getDriver(),!StringUtils.isEmpty(sqoopImport.getDriver()));
+        optionalStringArgument("--driver", sqoopImport.getDriver(), !StringUtils.isEmpty(sqoopImport.getDriver()));
 
         return this;
     }
 
-    public SqoopJob exec(String jobId, SqoopImport sqoopImport) {
+    public SqoopCommand exec(String jobId, SqoopImport sqoopImport) {
         requiredArgument("--exec", jobId);
         requiredArgument("--meta-connect", sqoopMetastore);
 
@@ -71,6 +73,19 @@ public class SqoopJob extends AbstractCommandLine {
         return this;
     }
 
+    public SqoopCommand sqoopImport(SqoopImport sqoopImport) {
+        requiredArgument("--connect", sqoopImport.getJdbcUri());
+        requiredArgument("--table", sqoopImport.getTable());
+        requiredArgument("--username", sqoopImport.getUsername());
+        requiredArgument("--password", sqoopImport.getPassword());
+        optionalArgument("--num-mappers", "1");
+        optionalArgument("--target-dir", sqoopImport.getTargetDir());
+        optionalArgument("--append");
+        requiredArgument("--connection-param-file", "driver.properties");
+        optionalStringArgument("--driver",sqoopImport.getDriver(),!StringUtils.isEmpty(sqoopImport.getDriver()));
+        optionalStringArgument("--schema", sqoopImport.getSchema(), !StringUtil.isEmpty(sqoopImport.getSchema()));
 
+        return this;
+    }
 
 }

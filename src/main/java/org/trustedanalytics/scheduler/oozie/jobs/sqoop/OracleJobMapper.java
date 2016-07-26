@@ -34,6 +34,7 @@ public class OracleJobMapper {
     private static void incorporateSchemaInTableName(SqoopImport job) {
         String tableWithSchema = job.getSchema() + "." + job.getTable();
         job.setTable(tableWithSchema);
+        job.setSchema("");
     }
 
     private static void adjustOracleJdbcString(SqoopImport job) {

@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.trustedanalytics.scheduler.client.OozieClient;
@@ -35,26 +34,25 @@ public class OozieClientTest  {
     @Autowired
     OozieClient oozieClient;
 
-
-
     @Test
-    public void nop() {
-        assertTrue(true);
-    }
-
-   // @Test
     public void submitCoordinatedJob() {
-
-        oozieClient.submitCoordinatedJob("jobDefinitionDirectory");
-        System.out.println("Get body" + MockRestTemplate.getRequestBody().toString());
+        oozieClient.submitCoordinatedJob("jobDefinitionDirectory", "test_target_dir");
 
         String generatedProperties = MockRestTemplate.getRequestBody().toString().replaceAll("[ \t\r]","").trim();
-
-        String validProperties = FileLoader.readFileResourceNormalized("/properties.xml");
+        String validProperties = FileLoader.readFileResourceNormalized("/scheduledJob/properties.xml");
         String propertiesDiff = StringUtils.difference(generatedProperties.trim(), validProperties.trim());
 
-        System.out.println("Properties difference: " + propertiesDiff);
         assertTrue(propertiesDiff.length() == 0);
     }
 
+    @Test
+    public void submitWorkflowJob() {
+        oozieClient.submitWorkflowJob("jobDefinitionDirectory", "test_target_dir");
+
+        String generatedProperties = MockRestTemplate.getRequestBody().toString().replaceAll("[ \t\r]", "").trim();
+        String validProperties = FileLoader.readFileResourceNormalized("/job/properties.xml");
+        String propertiesDiff = StringUtils.difference(generatedProperties.trim(), validProperties.trim());
+
+        assertTrue(propertiesDiff.length() == 0);
+    }
 }

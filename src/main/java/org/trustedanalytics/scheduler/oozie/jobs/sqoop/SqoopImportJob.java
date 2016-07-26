@@ -15,12 +15,12 @@
  */
 package org.trustedanalytics.scheduler.oozie.jobs.sqoop;
 
-import org.trustedanalytics.scheduler.oozie.jobs.OozieScheduledJob;
+import org.trustedanalytics.scheduler.oozie.jobs.OozieJob;
 
 import lombok.Data;
 
 @Data
-public class SqoopScheduledImportJob extends OozieScheduledJob {
+public class SqoopImportJob extends OozieJob {
 
     protected SqoopImport sqoopImport;
 

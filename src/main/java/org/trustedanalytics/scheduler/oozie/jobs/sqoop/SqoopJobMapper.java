@@ -32,38 +32,44 @@ public class SqoopJobMapper {
         this.databases = databaseProvider.getEnabledEngines();
     }
 
-    public void adjust(SqoopScheduledImportJob job) {
-
+    public void adjust(SqoopImportJob job) {
         job.setName(job.getName().replace(" ", "_"));
+        adjustSqoopImport(job.getSqoopImport());
+    }
+
+    public void adjust(SqoopScheduledImportJob job) {
+        job.setName(job.getName().replace(" ", "_"));
+        adjustSqoopImport(job.getSqoopImport());
 
         if (job.getSchedule() != null
                 && job.getSchedule().getFrequency() != null
                 && job.getSchedule().getFrequency().getUnit() != null) {
             job.getSchedule().getFrequency().setUnit(job.getSchedule().getFrequency().getUnit().toLowerCase());
         }
-
-        if ("overwrite".equalsIgnoreCase(job.getSqoopImport().getImportMode())) {
-            job.getSqoopImport().setIncremental(false);
-            job.getSqoopImport().setOverwrite(true);
-        }
-
-        if ("incremental".equalsIgnoreCase(job.getSqoopImport().getImportMode())) {
-            job.getSqoopImport().setIncremental(true);
-            job.getSqoopImport().setOverwrite(false);
-        }
-
-        Observable.just(job.getSqoopImport()).map(sqoopImport -> {
-            if (OracleJobMapper.isOracle(sqoopImport)) {
-                OracleJobMapper.transform(sqoopImport);
-            } else {
-                adjustJdbcStringForAnyDatabaseExceptOracle(sqoopImport);
-            }
-            return sqoopImport;
-        }).subscribe();
-
-        setDriverClassNameIfEmpty(job.getSqoopImport());
     }
 
+    private void adjustSqoopImport(SqoopImport sqoopImport) {
+        if ("overwrite".equalsIgnoreCase(sqoopImport.getImportMode())) {
+            sqoopImport.setIncremental(false);
+            sqoopImport.setOverwrite(true);
+        }
+
+        if ("incremental".equalsIgnoreCase(sqoopImport.getImportMode())) {
+            sqoopImport.setIncremental(true);
+            sqoopImport.setOverwrite(false);
+        }
+
+        Observable.just(sqoopImport).map(s -> {
+            if (OracleJobMapper.isOracle(s)) {
+                OracleJobMapper.transform(s);
+            } else {
+                adjustJdbcStringForAnyDatabaseExceptOracle(s);
+            }
+            return s;
+        }).subscribe();
+
+        setDriverClassNameIfEmpty(sqoopImport);
+    }
 
     private void adjustJdbcStringForAnyDatabaseExceptOracle(SqoopImport importJob) {
         importJob.setJdbcUri(importJob.getJdbcUri().replace(":@", "://"));

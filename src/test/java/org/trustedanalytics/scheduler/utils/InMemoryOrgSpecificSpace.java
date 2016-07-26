@@ -53,7 +53,7 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
     @Override
     public Path createOozieWorkflow(Path workflowDirPath, InputStream in) throws IOException {
         workflowXml = IOUtils.toString(in, "UTF-8");
-        return new Path(workflowDirPath,"workflow.xml");
+        return new Path(workflowDirPath, "scheduledJob/workflow.xml");
     }
 
     @Override

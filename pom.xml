@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.11</version>
+    <version>0.5.12</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -16,10 +16,10 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-       <jacoco-measurement-instructions>0.015</jacoco-measurement-instructions>
-       <jacoco-measurement-branches>0.020</jacoco-measurement-branches>
-       <jacoco-measurement-lines>0.400</jacoco-measurement-lines>
-       <jacoco-measurement-classes>0.400</jacoco-measurement-classes>
+       <jacoco-measurement-instructions>0.220</jacoco-measurement-instructions>
+       <jacoco-measurement-branches>0.030</jacoco-measurement-branches>
+       <jacoco-measurement-lines>0.480</jacoco-measurement-lines>
+       <jacoco-measurement-classes>0.500</jacoco-measurement-classes>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

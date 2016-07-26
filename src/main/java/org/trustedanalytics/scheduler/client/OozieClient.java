@@ -23,14 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.trustedanalytics.scheduler.filesystem.HdfsConfigProvider;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.rest.RestOperationsFactory;
 import org.trustedanalytics.scheduler.security.TokenProvider;
@@ -46,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -54,7 +53,8 @@ public class OozieClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(OozieClient.class);
     private static final String JOBS_URL = "/oozie/v1/jobs";
     private static final String SINGLE_JOB_URL = "/oozie/v1/job/";
-
+    private static final String NO_ACTION = null;
+    private static final String START_ACTION = "start";
 
     private RestOperationsFactory restTemplateFactory;
     private TokenProvider tokenProvider;
@@ -83,7 +83,7 @@ public class OozieClient {
                     .map(job -> new OozieWorkflowJobInformationExtended(job, jobContext.getNameNode()))
                     .collect(Collectors.toList()));
             offset += len;
-        } while(oozieWorkflowJobsInformationExtended.size() == offset);
+        } while (oozieWorkflowJobsInformationExtended.size() == offset);
         return oozieWorkflowJobsInformationExtended;
     }
 
@@ -96,12 +96,13 @@ public class OozieClient {
 
         do {
             oozieCoordinatedJobInformations.addAll(
-                getJobs(offset, len, "coord", new ParameterizedTypeReference<Page<OozieCoordinatedJobInformation>>() {})
-                    .stream()
-                    .filter(job -> Strings.isNullOrEmpty(job.getLastAction()) || getDate(job.getLastAction()).isAfter(searchedTime))
-                    .collect(Collectors.toList()));
+                    getJobs(offset, len, "coord", new ParameterizedTypeReference<Page<OozieCoordinatedJobInformation>>() {
+                    })
+                            .stream()
+                            .filter(job -> Strings.isNullOrEmpty(job.getLastAction()) || getDate(job.getLastAction()).isAfter(searchedTime))
+                            .collect(Collectors.toList()));
             offset += len;
-        } while(oozieCoordinatedJobInformations.size() == offset);
+        } while (oozieCoordinatedJobInformations.size() == offset);
         return oozieCoordinatedJobInformations;
     }
 
@@ -123,13 +124,13 @@ public class OozieClient {
     private LocalDateTime getSearchedDate(String unit, int amount) {
         LocalDateTime currentTime = LocalDateTime.ofInstant(new Date().toInstant(), ZoneId.of("GMT"));
 
-        if("days".equals(unit)) {
+        if ("days".equalsIgnoreCase(unit)) {
             return currentTime.minusDays(amount);
         }
-        if("weeks".equals(unit)) {
+        if ("weeks".equalsIgnoreCase(unit)) {
             return currentTime.minusWeeks(amount);
         }
-        if("hours".equals(unit)) {
+        if ("hours".equalsIgnoreCase(unit)) {
             return currentTime.minusHours(amount);
         }
         return currentTime.minusDays(1);
@@ -137,25 +138,25 @@ public class OozieClient {
 
     private <T> List<T> getJobs(int offset, int len, String jobType, ParameterizedTypeReference<Page<T>> responseType) {
         return getForEntity(jobContext.getOozieApiUrl() + JOBS_URL + "?jobtype=" + jobType + "&len=" + len + "&offset=" + offset, responseType)
-            .getEntries();
+                .getEntries();
     }
 
     private <T> List<T> getJobs(String appName, String jobType, ParameterizedTypeReference<Page<T>> responseType) {
         final String name = OozieNameResolver.resolveWorkflowAppName(appName);
         return getForEntity(jobContext.getOozieApiUrl() + JOBS_URL + "?filter=name=" + name + "&len=20000&jobtype=" + jobType, responseType)
-            .getEntries();
+                .getEntries();
     }
 
     private <T> Page<T> getForEntity(String url, ParameterizedTypeReference<Page<T>> parameterizedTypeReference) {
         return restTemplateFactory.getRestTemplate().exchange(url, HttpMethod.GET, null, parameterizedTypeReference).getBody();
     }
 
-    public OozieJobId submitCoordinatedJob(String jobDefinitionDirectory) {
-        return submitJob(getRequestBody(tokenProvider.getUserId(), jobDefinitionDirectory, "oozie.coord.application.path"));
+    public OozieJobId submitCoordinatedJob(String jobDefinitionDirectory, String targetDir) {
+        return submitJob(getRequestBody(tokenProvider.getUserId(), jobDefinitionDirectory, "oozie.coord.application.path", targetDir), NO_ACTION);
     }
 
-    public OozieJobId submitWorkflowJob(String jobDefinitionDirectory) {
-        return submitJob(getRequestBody(tokenProvider.getUserId(), jobDefinitionDirectory, "oozie.wf.application.path"));
+    public OozieJobId submitWorkflowJob(String jobDefinitionDirectory, String targetDir) {
+        return submitJob(getRequestBody(tokenProvider.getUserId(), jobDefinitionDirectory, "oozie.wf.application.path", targetDir), START_ACTION);
     }
 
     public OozieJobLogs getJobLogs(String jobId) {
@@ -167,11 +168,13 @@ public class OozieClient {
     }
 
     public OozieWorkflowJobInformationExtended getWorkflowJobDetails(String jobId) {
-        return new OozieWorkflowJobInformationExtended(getJobDetails(jobId, new ParameterizedTypeReference<OozieWorkflowJobInformation>() {}), jobContext.getNameNode());
+        return new OozieWorkflowJobInformationExtended(getJobDetails(jobId, new ParameterizedTypeReference<OozieWorkflowJobInformation>() {
+        }), jobContext.getNameNode());
     }
 
     public OozieCoordinatedJobInformation getCoordinatedJobDetails(String jobId) {
-        return getJobDetails(jobId, new ParameterizedTypeReference<OozieCoordinatedJobInformation>() {});
+        return getJobDetails(jobId, new ParameterizedTypeReference<OozieCoordinatedJobInformation>() {
+        });
     }
 
     public void manageJob(String jobId, String action) {
@@ -179,13 +182,14 @@ public class OozieClient {
     }
 
     public List<OozieWorkflowJobInformationExtended> getWorkflowJobOfCoordinator(int offset, int len, String jobId) {
-        return getJobs(getCoordinatedJobDetails(jobId).getCoordJobName(), "wf", new ParameterizedTypeReference<Page<OozieWorkflowJobInformation>>() {})
-            .stream()
-            .filter(job -> Objects.nonNull(job.getParentId()) && job.getParentId().contains(jobId))
-            .map(job -> new OozieWorkflowJobInformationExtended(job, jobContext.getNameNode()))
-            .skip((offset - 1)*len)
-            .limit(len)
-            .collect(Collectors.toList());
+        return getJobs(getCoordinatedJobDetails(jobId).getCoordJobName(), "wf", new ParameterizedTypeReference<Page<OozieWorkflowJobInformation>>() {
+        })
+                .stream()
+                .filter(job -> Objects.nonNull(job.getParentId()) && job.getParentId().contains(jobId))
+                .map(job -> new OozieWorkflowJobInformationExtended(job, jobContext.getNameNode()))
+                .skip((offset - 1) * len)
+                .limit(len)
+                .collect(Collectors.toList());
     }
 
     public ResponseEntity<byte[]> getJobGraph(String jobId) {
@@ -195,10 +199,10 @@ public class OozieClient {
         final HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
 
-       return new ResponseEntity<>(response.getBody(), headers, HttpStatus.MULTI_STATUS.ACCEPTED);
+        return new ResponseEntity<>(response.getBody(), headers, HttpStatus.MULTI_STATUS.ACCEPTED);
     }
 
-    private OozieJobId submitJob(String requestBody) {
+    private OozieJobId submitJob(String requestBody, String action) {
 
         Map<String, String> jobProperties = new HashMap<>();
         jobProperties.put("Content-Type", "application/xml;charset=UTF-8");
@@ -208,24 +212,31 @@ public class OozieClient {
         headers.setContentType(MediaType.APPLICATION_XML);
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
+        String url = Optional.ofNullable(action)
+                .map(a -> jobContext.getOozieApiUrl() + JOBS_URL + "?action=" + a)
+                .orElse(jobContext.getOozieApiUrl() + JOBS_URL);
 
-        return restTemplateFactory.getRestTemplate().postForEntity(jobContext.getOozieApiUrl() + JOBS_URL, entity, OozieJobId.class, jobProperties).getBody();
+        return restTemplateFactory.getRestTemplate().postForEntity(url, entity, OozieJobId.class, jobProperties).getBody();
     }
 
-    private String getRequestBody(String userName, String jobDefinitionDirectory, String jobType) {
+    private String getRequestBody(String userName, String jobDefinitionDirectory, String jobType, String targetDir) {
 
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                 "<configuration>" +
                 property("user.name", userName) +
                 property(jobType, jobDefinitionDirectory) +
+                property("oozie.libpath", "/user/oozie/share/lib/") +
                 property("oozie.use.system.libpath", "true") +
                 property("nameNode", jobContext.getNameNode()) +
                 property("queueName", "default") +
                 property("jobTracker", jobContext.getJobTracker()) +
-        "</configuration>";
+                property("targetDir", targetDir) +
+                "</configuration>";
     }
 
     private static String property(String name, String value) {
-        return "<property><name>" + name + "</name><value>" + value + "</value></property>";
+        return Optional.ofNullable(value)
+                .map(v -> "<property><name>" + name + "</name><value>" + v + "</value></property>")
+                .orElse("");
     }
 }
