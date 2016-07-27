@@ -41,13 +41,13 @@ public class WorkflowInstance {
 
     private List<BuilderNode> actionNodes = new ArrayList<>();
 
-    public static final Properties xmlProperties = new Properties()  {
-        {
-            put(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
-            put(javax.xml.transform.OutputKeys.METHOD, "xml");
-            put(javax.xml.transform.OutputKeys.INDENT, "yes");
-            put("{http://xml.apache.org/xslt}indent-amount", "2");
-        }
+    private static final Properties xmlProperties = new Properties();
+
+    static {
+        xmlProperties.put(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+        xmlProperties.put(javax.xml.transform.OutputKeys.METHOD, "xml");
+        xmlProperties.put(javax.xml.transform.OutputKeys.INDENT, "yes");
+        xmlProperties.put("{http://xml.apache.org/xslt}indent-amount", "2");
     };
 
     private WorkflowInstance(WorkflowInstanceBuilder builder) {

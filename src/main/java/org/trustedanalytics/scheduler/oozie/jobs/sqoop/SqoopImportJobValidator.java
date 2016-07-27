@@ -33,7 +33,7 @@ public class SqoopImportJobValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> aClass) {
-        return SqoopScheduledImportJob.class.equals(aClass) | SqoopImportJob.class.equals((aClass));
+        return SqoopScheduledImportJob.class.equals(aClass) || SqoopImportJob.class.equals(aClass);
     }
 
     @Override

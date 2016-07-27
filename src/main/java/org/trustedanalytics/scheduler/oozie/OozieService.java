@@ -15,7 +15,6 @@
  */
 package org.trustedanalytics.scheduler.oozie;
 
-import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImport;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImportJob;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.client.OozieClient;

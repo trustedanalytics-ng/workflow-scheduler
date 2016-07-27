@@ -19,6 +19,9 @@ package org.trustedanalytics.scheduler.oozie.jobs.sqoop;
 
 public class OracleJobMapper {
 
+    private OracleJobMapper() {
+    }
+
     public static void transform(SqoopImport job) {
         adjustOracleJdbcString(job);
 

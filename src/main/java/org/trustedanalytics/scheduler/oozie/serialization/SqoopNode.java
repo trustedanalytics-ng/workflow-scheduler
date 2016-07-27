@@ -84,13 +84,14 @@ public class SqoopNode implements XmlNode {
         private String command;
         private Map<String, String> properties = new HashMap<>();
         private JobContext jobContext;
-        public List<String> files = new ArrayList<>();
+        private List<String> files = new ArrayList<>();
 
         public WorkflowActionNodeBuilder(JobContext jobContext) {
             this.properties.put("mapred.job.queue.name", jobContext.getQueueName());
             this.jobContext = jobContext;
         }
 
+        @Override
         public SqoopNode build() {
             return new SqoopNode(this);
         }
