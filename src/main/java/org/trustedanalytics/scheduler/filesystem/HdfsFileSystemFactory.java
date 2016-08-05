@@ -81,9 +81,6 @@ public class HdfsFileSystemFactory implements FileSystemFactory {
 
     public FileSystem getFileSystem(String token, UUID org) {
         try {
-
-            //TODO START: this code is from hadoop-utils (95%),
-            // we need to change hadoop-utils to enable uri with templates like hdfs://name/org/%{organization}/catalog
             TapOauthToken jwtToken = new TapOauthToken(token);
 
             if (hdfsConfigProvider.isKerberosEnabled()) {
@@ -91,18 +88,13 @@ public class HdfsFileSystemFactory implements FileSystemFactory {
                         KrbLoginManagerFactory.getInstance().getKrbLoginManagerInstance(hdfsConfigProvider.getKdc(), hdfsConfigProvider.getRealm());
                 loginManager.loginInHadoop(loginManager.loginWithJWTtoken(jwtToken), hdfsConfigProvider.getHadoopConf());
             }
-
             URI uri = new URI(hdfsConfigProvider.getHdfsOrgUri(org));
             return FileSystem.get(uri, hdfsConfigProvider.getHadoopConf(), jwtToken.getUserId());
-            //TODO END
 
-        } catch (IOException | InterruptedException | URISyntaxException e) {
-            //TODO: must be thrown as 500
-            LOGGER.error("Error while connecting hdfs", e);
-        } catch (LoginException e) {
-            LOGGER.error("Error while connecting hdfs", e);
+        } catch (IOException | InterruptedException | URISyntaxException |LoginException e) {
+            LOGGER.error("Exception occurred", e);
+            throw new IllegalStateException("Error while creating FileSystem object");
         }
-        return null; //TODO: remove, when you rethrow IOException
     }
 
 
