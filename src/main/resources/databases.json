@@ -5,8 +5,9 @@
       {
         "name": "postgresql",
         "version": "9.3",
-        "className": "org.postgresql.Driver",
-        "jdbcRegex" : "jdbc:postgresql:\/\/([\\w:._-]+):([1-9][0-9]{0,4})\/([\\w]+)",
+        // DPNG-10280, empty class name for postgres, otherwise import with schema will not work
+        "className": "",
+        "jdbcRegex" : "jdbc:postgresql:\/\/([\\w:._-]+):([1-9][0-9]{0,4})\/([\\w]+)[\\S]*",
         "jdbcTemplate": "jdbc:postgresql://{host}:{port}/{database}"
       }
     ],
@@ -23,7 +24,7 @@
         "name": "mysql",
         "version": "5.1",
         "className": "com.mysql.jdbc.Driver",
-        "jdbcRegex" : "jdbc:mysql:\\/\\/([\\w:._-]+):([1-9][0-9]{0,4})\\/([\\w]+)",
+        "jdbcRegex" : "jdbc:mysql:\\/\\/([\\w:._-]+):([1-9][0-9]{0,4})\\/([\\w]+)[\\S]*",
         "jdbcTemplate": "jdbc:mysql://{host}:{port}/{database}"
       }
     ],
@@ -39,7 +40,7 @@
         "name": "oracle:thin",
         "version": "5.1",
         "className": "",
-        "jdbcRegex" : "jdbc:oracle:thin:[@\\/\\/]{1,2}([\\w:._-]+):([1-9][0-9]{0,4})[/:]([\\w]+)",
+        "jdbcRegex" : "jdbc:oracle:thin:[@\\/\\/]{1,2}([\\w:._-]+):([1-9][0-9]{0,4})[/:]([\\w]+)[\\S]*",
         "jdbcTemplate": "jdbc:oracle:thin:@{host}:{port}:{database}"
       }
     ],
@@ -55,7 +56,7 @@
         "name" : "teradata",
         "version" : "1.0",
         "className": "com.teradata.jdbc.TeraDriver",
-        "jdbcRegex" : "jdbc:teradata://([\\w:._-]+)/DATABASE=([\\w]+),DBS_PORT=([1-9][0-9]{0,4})",
+        "jdbcRegex" : "jdbc:teradata://([\\w:._-]+)/DATABASE=([\\w]+),DBS_PORT=([1-9][0-9]{0,4})[\\S]*",
         "jdbcTemplate": "jdbc:teradata://{host}/DATABASE={database},DBS_PORT={port}"
       }
     ],

@@ -16,6 +16,8 @@
 package org.trustedanalytics.scheduler.oozie.jobs.sqoop;
 
 import org.hsqldb.lib.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.trustedanalytics.scheduler.oozie.jobs.AbstractCommandLine;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +26,7 @@ import java.util.Objects;
 
 public class SqoopCommand extends AbstractCommandLine {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqoopCommand.class);
     private final String sqoopMetastore;
     private final String name;
 
@@ -60,14 +63,17 @@ public class SqoopCommand extends AbstractCommandLine {
         requiredArgument("--exec", jobId);
         requiredArgument("--meta-connect", sqoopMetastore);
 
-
         final String username = sqoopImport.getUsername();
-        final String password = sqoopImport.getPassword();
-        if(StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {
+
+        if(StringUtils.isNotBlank(username)) {
             requiredArgument("--");
             requiredArgument("--username", sqoopImport.getUsername());
-            requiredArgument("--password", sqoopImport.getPassword() + " --");
+            optionalStringArgument("--password", sqoopImport.getPassword(), !StringUtils.isEmpty(sqoopImport.getPassword()));
+            requiredArgument(" --");
         }
+
+        LOGGER.info("Schema: {}", sqoopImport.getSchema());
+
         optionalStringArgument("--schema", sqoopImport.getSchema() + " -- --", !StringUtil.isEmpty(sqoopImport.getSchema()));
 
         return this;

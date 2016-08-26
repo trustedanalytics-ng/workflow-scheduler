@@ -16,6 +16,8 @@
 package org.trustedanalytics.scheduler.oozie.jobs.sqoop;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.trustedanalytics.scheduler.DatabaseProvider;
@@ -24,6 +26,8 @@ import rx.Observable;
 
 @Component
 public class SqoopJobMapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqoopJobMapper.class);
 
     private final Observable<Database> databases;
 
@@ -45,6 +49,10 @@ public class SqoopJobMapper {
                 && job.getSchedule().getFrequency() != null
                 && job.getSchedule().getFrequency().getUnit() != null) {
             job.getSchedule().getFrequency().setUnit(job.getSchedule().getFrequency().getUnit().toLowerCase());
+        }
+        if (StringUtils.isEmpty(job.getSqoopImport().getUsername())) {
+            LOGGER.info("Empty username detected, using 'tap'");
+            job.getSqoopImport().setUsername("tap");
         }
     }
 

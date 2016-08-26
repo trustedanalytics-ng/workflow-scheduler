@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
@@ -42,11 +44,15 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes=TestConfiguration.class)
 public class OozieServiceTest  {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OozieServiceTest.class);
+
     @Autowired
     private Environment env;
 
     @Autowired
     OozieService oozieService;
+
+    private UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");;
 
     @Before
     public void prepare() {
@@ -56,169 +62,80 @@ public class OozieServiceTest  {
     @Test
     public void createValidXMLConfigTestAppendModeUTCCoordinatedJob() throws IOException {
 
-        SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
-        sqoopScheduledImportJob.setName("test");
-        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,8,15),
-                                                    LocalDateTime.of(2077,7,6,8,15), ZoneId.of("UTC"));
-        OozieFrequency frequency = new OozieFrequency("minutes", 10L);
-        oozieSchedule.setFrequency(frequency);
-        sqoopScheduledImportJob.setSchedule(oozieSchedule);
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
 
-        SqoopImport sqoopImport = new SqoopImport();
-        sqoopImport.setJdbcUri("FAKE_JDBC_URI");
-        sqoopImport.setTable("table_in_database");
-        sqoopImport.setImportMode("append");
-        sqoopImport.setUsername("john");
-        sqoopImport.setPassword("doe");
-        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
-
+        sqoopScheduledImportJob.getSqoopImport().setSchema("");
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
 
-        String generatedWorkflow = InMemoryOrgSpecificSpace.getWorkflowXml().replaceAll("[ \t\r]","").trim();
-        String generatedCoordinator = InMemoryOrgSpecificSpace.getCoordinatorXml().replaceAll("[ \t\r]", "").trim();
+        validateCoordinatorAndWorkflow("workflow.xml", "coordinator.xml");
+    }
 
-        String validWorkflow = FileLoader.readFileResourceNormalized("/scheduledJob/workflow.xml");
-        String validCoordinator = FileLoader.readFileResourceNormalized("/scheduledJob/coordinator.xml");
 
-        String workflowDiff = StringUtils.difference(generatedWorkflow.trim(), validWorkflow.trim());
-        String coordinatorDiff = StringUtils.difference(generatedCoordinator.trim(),validCoordinator.trim());
 
-        assertTrue(workflowDiff.length() == 0);
-        assertTrue(coordinatorDiff.length() == 0);
+    @Test
+    public void createValidXMLConfigTestAppendModeNoUsernameDriverDefined() throws IOException {
+
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
+        sqoopScheduledImportJob.getSqoopImport().setDriver("FAKE_DRIVER");
+        sqoopScheduledImportJob.getSqoopImport().setUsername("");
+        sqoopScheduledImportJob.getSqoopImport().setPassword("");
+        oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
+        validateCoordinatorAndWorkflow("workflow_no_username.xml","coordinator.xml");
     }
 
     @Test
     public void createValidXMLConfigTestAppendModeLosAngelesTimeCoordinatedJob() throws IOException {
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
         String timeZone = "America/Los_Angeles";
-        SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
-        sqoopScheduledImportJob.setName("test");
-        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,1,15),
-                LocalDateTime.of(2077,7,6,1,15), ZoneId.of(timeZone));
+
+        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077, 7, 4, 1, 15),
+                LocalDateTime.of(2077, 7, 6, 1, 15), ZoneId.of(timeZone));
         OozieFrequency frequency = new OozieFrequency("minutes", 10L);
         oozieSchedule.setFrequency(frequency);
+
         sqoopScheduledImportJob.setSchedule(oozieSchedule);
-
-        SqoopImport sqoopImport = new SqoopImport();
-        sqoopImport.setJdbcUri("FAKE_JDBC_URI");
-        sqoopImport.setTable("table_in_database");
-        sqoopImport.setImportMode("append");
-        sqoopImport.setUsername("john");
-        sqoopImport.setPassword("doe");
-        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
-
+        sqoopScheduledImportJob.getSqoopImport().setSchema("");
 
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
 
-        String generatedWorkflow = InMemoryOrgSpecificSpace.getWorkflowXml().replaceAll("[ \t\r]", "").trim();;
-        String generatedCoordinator = InMemoryOrgSpecificSpace.getCoordinatorXml().replaceAll("[ \t\r]", "").trim();
-
-        String validWorkflow = FileLoader.readFileResourceNormalized("/scheduledJob/workflow.xml");
-        String validCoordinator = FileLoader.readFileResourceNormalized("/scheduledJob/coordinator.xml");
-
-        validCoordinator = validCoordinator.replace("UTC",timeZone);
-
-        String workflowDiff = StringUtils.difference(generatedWorkflow.trim(), validWorkflow.trim());
-        String coordinatorDiff = StringUtils.difference(generatedCoordinator.trim(),validCoordinator.trim());
-
-        assertTrue(workflowDiff.length() == 0);
-        assertTrue(coordinatorDiff.length() == 0);
+        validateCoordinatorAndWorkflow("workflow.xml", "coordinator_la_timezone.xml");
     }
 
     @Test
     public void importModeIncrementalFlagsAreSetCorrectlyCoordinatedJob() throws IOException {
-        SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
-        sqoopScheduledImportJob.setName("test");
-        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,8,15),
-                LocalDateTime.of(2077,7,6,8,15), ZoneId.of("UTC"));
-        OozieFrequency frequency = new OozieFrequency("minutes", 10L);
-        oozieSchedule.setFrequency(frequency);
-        sqoopScheduledImportJob.setSchedule(oozieSchedule);
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
 
-        SqoopImport sqoopImport = new SqoopImport();
-        sqoopImport.setJdbcUri("FAKE_JDBC_URI");
-        sqoopImport.setTable("table_in_database");
-        sqoopImport.setImportMode("incremental");
-        sqoopImport.setCheckColumn("id");
-        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
+        sqoopScheduledImportJob.getSqoopImport().setImportMode("incremental");
+        sqoopScheduledImportJob.getSqoopImport().setCheckColumn("id");
 
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
 
-        assertTrue(sqoopImport.getAppend());
-        assertTrue(sqoopImport.getIncremental());
-        assertFalse(sqoopImport.getOverwrite());
+        assertTrue(sqoopScheduledImportJob.getSqoopImport().getAppend());
+        assertTrue(sqoopScheduledImportJob.getSqoopImport().getIncremental());
+        assertFalse(sqoopScheduledImportJob.getSqoopImport().getOverwrite());
     }
 
     @Test
     public void createValidXMLConfigWithSchemaCoordinatedJob() throws IOException {
-        SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
-        sqoopScheduledImportJob.setName("test");
-        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,8,15),
-                LocalDateTime.of(2077,7,6,8,15), ZoneId.of("UTC"));
-        OozieFrequency frequency = new OozieFrequency("minutes", 10L);
-        oozieSchedule.setFrequency(frequency);
-        sqoopScheduledImportJob.setSchedule(oozieSchedule);
-
-        SqoopImport sqoopImport = new SqoopImport();
-        sqoopImport.setJdbcUri("FAKE_JDBC_URI");
-        sqoopImport.setTable("table_in_database");
-        sqoopImport.setImportMode("append");
-        sqoopImport.setSchema("my_schema");
-        sqoopImport.setUsername("john");
-        sqoopImport.setPassword("doe");
-        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
 
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
 
-        String generatedWorkflow = InMemoryOrgSpecificSpace.getWorkflowXml().replaceAll("[ \t\r]","").trim();
-        String generatedCoordinator = InMemoryOrgSpecificSpace.getCoordinatorXml().replaceAll("[ \t\r]", "").trim();
-
-        String validWorkflow = FileLoader.readFileResourceNormalized("/scheduledJob/workflow_with_schema.xml");
-        String validCoordinator = FileLoader.readFileResourceNormalized("/scheduledJob/coordinator.xml");
-
-        String workflowDiff = StringUtils.difference(generatedWorkflow.trim(), validWorkflow.trim());
-        String coordinatorDiff = StringUtils.difference(generatedCoordinator.trim(), validCoordinator.trim());
-
-        assertTrue(workflowDiff.length() == 0);
-        assertTrue(coordinatorDiff.length() == 0);
+        validateCoordinatorAndWorkflow("workflow_with_schema.xml", "coordinator.xml");
     }
+
+
 
     @Test
     public void createValidXMLConfigPostgresDriverCoordinatedJob () throws IOException {
-        SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
-        sqoopScheduledImportJob.setName("test");
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
 
-        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077,7,4,8,15),
-                LocalDateTime.of(2077,7,6,8,15), ZoneId.of("UTC"));
-        OozieFrequency frequency = new OozieFrequency("minutes", 10L);
-        oozieSchedule.setFrequency(frequency);
-        sqoopScheduledImportJob.setSchedule(oozieSchedule);
-
-        SqoopImport sqoopImport = new SqoopImport();
-        sqoopImport.setJdbcUri("jdbc:postgresql");
-        sqoopImport.setTable("table_in_database");
-        sqoopImport.setImportMode("append");
-        sqoopImport.setUsername("john");
-        sqoopImport.setPassword("doe");
-        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
+        sqoopScheduledImportJob.getSqoopImport().setSchema("");
+        sqoopScheduledImportJob.getSqoopImport().setJdbcUri("jdbc:postgresql");
 
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
 
-        String generatedWorkflow = InMemoryOrgSpecificSpace.getWorkflowXml().replaceAll("[ \t\r]","").trim();
-        String generatedCoordinator = InMemoryOrgSpecificSpace.getCoordinatorXml().replaceAll("[ \t\r]", "").trim();
-
-        String validWorkflow = FileLoader.readFileResourceNormalized("/scheduledJob/workflow_postgresql.xml");
-        String validCoordinator = FileLoader.readFileResourceNormalized("/scheduledJob/coordinator.xml");
-
-        String workflowDiff = StringUtils.difference(generatedWorkflow.trim(), validWorkflow.trim());
-        String coordinatorDiff = StringUtils.difference(generatedCoordinator.trim(),validCoordinator.trim());
-
-        assertTrue(workflowDiff.length() == 0);
-        assertTrue(coordinatorDiff.length() == 0);
+        validateCoordinatorAndWorkflow("workflow_postgresql.xml", "coordinator.xml");
     }
 
     @Test
@@ -235,7 +152,6 @@ public class OozieServiceTest  {
         sqoopImport.setSchema("test_schema");
         sqoopImportJob.setSqoopImport(sqoopImport);
 
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
 
         oozieService.sqoopImportJob(sqoopImportJob, orgId);
 
@@ -259,8 +175,6 @@ public class OozieServiceTest  {
         sqoopImport.setPassword("doe");
         sqoopImportJob.setSqoopImport(sqoopImport);
 
-        UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");
-
         oozieService.sqoopImportJob(sqoopImportJob, orgId);
 
         String generatedWorkflow = InMemoryOrgSpecificSpace.getWorkflowXml().replaceAll("[ \t\r]","").trim();
@@ -268,5 +182,40 @@ public class OozieServiceTest  {
         String workflowDiff = StringUtils.difference(generatedWorkflow.trim(), validWorkflow.trim());
 
         assertTrue(workflowDiff.length() == 0);
+    }
+
+    private SqoopScheduledImportJob getDefaultScheduledSqoopJob() {
+        SqoopScheduledImportJob sqoopScheduledImportJob = new SqoopScheduledImportJob();
+        sqoopScheduledImportJob.setName("test");
+        OozieSchedule oozieSchedule = new OozieSchedule(LocalDateTime.of(2077, 7, 4, 8, 15),
+                LocalDateTime.of(2077,7,6,8,15), ZoneId.of("UTC"));
+        OozieFrequency frequency = new OozieFrequency("minutes", 10L);
+        oozieSchedule.setFrequency(frequency);
+        sqoopScheduledImportJob.setSchedule(oozieSchedule);
+
+        SqoopImport sqoopImport = new SqoopImport();
+        sqoopImport.setJdbcUri("FAKE_JDBC_URI");
+        sqoopImport.setTable("table_in_database");
+        sqoopImport.setImportMode("append");
+        sqoopImport.setSchema("my_schema");
+        sqoopImport.setUsername("john");
+        sqoopImport.setPassword("doe");
+        sqoopScheduledImportJob.setSqoopImport(sqoopImport);
+        return sqoopScheduledImportJob;
+    }
+
+    private void validateCoordinatorAndWorkflow(String workflowXmlFile, String coordXmlFile) {
+        String generatedWorkflow = InMemoryOrgSpecificSpace.getWorkflowXml().replaceAll("[ \t\r]","").trim();
+        String generatedCoordinator = InMemoryOrgSpecificSpace.getCoordinatorXml().replaceAll("[ \t\r]", "").trim();
+
+        String validWorkflow = FileLoader.readFileResourceNormalized("/scheduledJob/" + workflowXmlFile);
+        String validCoordinator = FileLoader.readFileResourceNormalized("/scheduledJob/" + coordXmlFile);
+
+        String workflowDiff = StringUtils.difference(generatedWorkflow.trim(), validWorkflow.trim());
+        String coordinatorDiff = StringUtils.difference(generatedCoordinator.trim(),validCoordinator.trim());
+
+
+        assertTrue(workflowDiff.length() == 0);
+        assertTrue(coordinatorDiff.length() == 0);
     }
 }
