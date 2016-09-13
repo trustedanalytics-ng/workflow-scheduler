@@ -27,6 +27,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.trustedanalytics.scheduler.filesystem.HdfsConfigProvider;
 import org.trustedanalytics.scheduler.security.TokenProvider;
 
 @Service
@@ -43,13 +44,16 @@ public class WorkflowSchedulerConfigurationProvider {
     @Value("${oozie.schedule.frequency.minimum}")
     private long scheduleMinimumFrequency;
 
+    private final HdfsConfigProvider hdfsConfigProvider;
+
     @Autowired
-    public WorkflowSchedulerConfigurationProvider(DatabaseProvider databaseProvider, TokenProvider tokenProvider) {
+    public WorkflowSchedulerConfigurationProvider(DatabaseProvider databaseProvider, TokenProvider tokenProvider, HdfsConfigProvider hdfsConfigProvider) {
         this.databases = databaseProvider.getEnabledEngines().toList().toBlocking().single();
         this.zones = Arrays.stream(TimeZone.getAvailableIDs())
                 .filter(timezone -> timezone.matches(MAIN_TIMEZONES))
                 .collect(Collectors.toList());
         this.tokenProvider = tokenProvider;
+        this.hdfsConfigProvider = hdfsConfigProvider;
     }
 
     public WorkflowSchedulerConfigurationEntity getConfiguration(UUID orgId) {
@@ -57,7 +61,7 @@ public class WorkflowSchedulerConfigurationProvider {
             .databases(databases)
             .timezones(zones)
             .organizationDirectory(
-                String.format("hdfs://nameservice1/org/%s/user/%s/", orgId, tokenProvider.getUserId()))
+                String.format(hdfsConfigProvider.getHdfsUri() + "/org/%s/user/%s/", orgId, tokenProvider.getUserId()))
             .minimumFrequencyInSeconds(scheduleMinimumFrequency)
             .build();
     }

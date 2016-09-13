@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.17</version>
+    <version>0.6.1</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>org.trustedanalytics</groupId>
             <artifactId>hadoop-utils</artifactId>
-            <version>0.6.8</version>
+            <version>0.6.14</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -213,6 +213,22 @@
                     </arguments>
                 </configuration>
             </plugin>
+           <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.4.9</version>
+            <configuration>
+                <imageName>${project.artifactId}</imageName>
+                <dockerDirectory>src/main/docker</dockerDirectory>
+                <resources>
+                    <resource>
+                        <targetPath>/</targetPath>
+                        <directory>${project.build.directory}</directory>
+                        <include>${project.build.finalName}.jar</include>
+                    </resource>
+                </resources>
+            </configuration>
+        </plugin>
         </plugins>
     </build>
 </project>

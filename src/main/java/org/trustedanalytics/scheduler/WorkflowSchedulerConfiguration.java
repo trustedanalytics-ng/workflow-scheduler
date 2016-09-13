@@ -19,13 +19,17 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.trustedanalytics.scheduler.filesystem.HdfsConfigProvider;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -40,11 +44,11 @@ public class WorkflowSchedulerConfiguration {
     @Value("${sqoop.metastore}")
     private String sqoopMetastore;
 
-    @Value("${namenode}")
-    private String namenode;
-
     @Value("${oozie.api.url:host}")
     private String oozieApiUrl;
+
+    @Autowired
+    private HdfsConfigProvider hdfsConfigProvider;
 
 
     @Bean
@@ -53,7 +57,7 @@ public class WorkflowSchedulerConfiguration {
         return JobContext.builder()
             .jobTracker(jobTracker)
             .sqoopMetastore(sqoopMetastore)
-            .nameNode(namenode)
+            .nameNode(hdfsConfigProvider.getHdfsUri())
             .oozieApiUrl(oozieApiUrl)
             .build();
     }
@@ -70,5 +74,7 @@ public class WorkflowSchedulerConfiguration {
 
         return objectMapper;
     }
+
+
 
 }

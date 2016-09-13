@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.trustedanalytics.scheduler.oozie.TestConfiguration;
+import org.trustedanalytics.scheduler.utils.MockHdfsConfigProvider;
 import org.trustedanalytics.scheduler.utils.MockTokenProvider;
 
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class WorkflowSchedulerConfigurationProviderTest {
 
     @Before
     public void prepare() {
-        provider = new WorkflowSchedulerConfigurationProvider(databaseProvider, new MockTokenProvider());
+        provider = new WorkflowSchedulerConfigurationProvider(databaseProvider, new MockTokenProvider(), new MockHdfsConfigProvider());
     }
 
     @Test

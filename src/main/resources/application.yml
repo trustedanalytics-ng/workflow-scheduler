@@ -39,8 +39,6 @@ logging:
 
 flyway.initOnMigrate: true
 
-namenode: ${vcap.services.hdfs-instance.credentials.HADOOP_CONFIG_KEY.fs.defaultFS}
-
 endpoints.enabled: false
 endpoints.health.enabled: true
 spring.datasource.platform: cloud
@@ -49,8 +47,8 @@ spring.datasource: platform=postgres
 spring.jpa.show-sql: true
 spring.jpa.hibernate.ddl-auto: ""
 spring.database.driverClassName: org.postgresql.Driver
-spring.datasource.url: jdbc:postgresql://${vcap.services.workflow-scheduler-db.credentials.hostname}:${vcap.services.workflow-scheduler-db.credentials.port}/${vcap.services.workflow-scheduler-db.credentials.dbname}
-spring.datasource.username: ${vcap.services.workflow-scheduler-db.username}
-spring.datasource.password: ${vcap.services.workflow-scheduler-db.credentials.password}
+spring.datasource.url: jdbc:postgresql://${postgres.hostname}:${postgres.port}/${postgres.dbname}
+spring.datasource.username: ${postgres.username}
+spring.datasource.password: ${postgres.password}
 
 oozie.schedule.frequency.minimum: 300

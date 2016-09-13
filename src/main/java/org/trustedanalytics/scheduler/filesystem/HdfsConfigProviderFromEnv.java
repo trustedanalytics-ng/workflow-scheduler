@@ -19,6 +19,12 @@ import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.trustedanalytics.hadoop.config.client.*;
@@ -30,27 +36,29 @@ import java.util.UUID;
 @Profile("cloud")
 public class HdfsConfigProviderFromEnv implements HdfsConfigProvider {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsConfigProviderFromEnv.class);
+
     private static final String AUTHENTICATION_METHOD = "kerberos";
     private static final String AUTHENTICATION_METHOD_PROPERTY = "hadoop.security.authentication";
 
+
     @Getter
-    private final ServiceInstanceConfiguration hdfsConf;
-    @Getter
-    private ServiceInstanceConfiguration krbConf;
-    @Getter
+    @Value("${krb.kdc}")
     private String kdc;
+
     @Getter
+    @Value("${krb.realm}")
     private String realm;
+
+    @Value("${hadoop.conf.dir}")
+    private String hadoopConfDir;
+
     @Getter
-    private final Configuration hadoopConf;
+    private  Configuration hadoopConf;
 
     public HdfsConfigProviderFromEnv() throws IOException {
-        AppConfiguration appConfiguration = Configurations.newInstanceFromEnv();
-        hdfsConf = appConfiguration.getServiceConfig(ServiceType.HDFS_TYPE);
-        krbConf = appConfiguration.getServiceConfig(ServiceType.KERBEROS_TYPE);
-        kdc = krbConf.getProperty(Property.KRB_KDC).get();
-        realm = krbConf.getProperty(Property.KRB_REALM).get();
-        hadoopConf = hdfsConf.asHadoopConfiguration();
+        hadoopConf = getHadoopConfiguration();
+        LOGGER.info("Hadoop config : {}", hadoopConf);
     }
 
     @Override
@@ -65,7 +73,7 @@ public class HdfsConfigProviderFromEnv implements HdfsConfigProvider {
 
     @Override
     public String getHdfsOrgUri(UUID org) {
-        return PathTemplate.resolveOrg(hdfsConf.getProperty(Property.HDFS_URI).get(), org);
+        return PathTemplate.resolveOrg(getHdfsUri(), org);
     }
 
     private static class PathTemplate {
@@ -82,4 +90,10 @@ public class HdfsConfigProviderFromEnv implements HdfsConfigProvider {
         }
     }
 
+    private org.apache.hadoop.conf.Configuration getHadoopConfiguration() throws IOException {
+        org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration();
+        config.addResource(new Path("/etc/hadoop/" + "core-site.xml"));
+        config.addResource(new Path("/etc/hadoop/" + "hdfs-site.xml"));
+        return config;
+    }
 }
