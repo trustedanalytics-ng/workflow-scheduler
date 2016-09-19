@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.1</version>
+    <version>0.6.2</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -20,8 +20,9 @@
        <jacoco-measurement-branches>0.030</jacoco-measurement-branches>
        <jacoco-measurement-lines>0.480</jacoco-measurement-lines>
        <jacoco-measurement-classes>0.500</jacoco-measurement-classes>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <docker.imageName>${project.artifactId}</docker.imageName>
+        <docker.registry>tapimages.us.enableiot.com:8080</docker.registry>
     </properties>
 
     <dependencies>
@@ -216,20 +217,26 @@
            <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.4.9</version>
-            <configuration>
-                <imageName>${project.artifactId}</imageName>
-                <dockerDirectory>src/main/docker</dockerDirectory>
-                <resources>
-                    <resource>
-                        <targetPath>/</targetPath>
-                        <directory>${project.build.directory}</directory>
-                        <include>${project.build.finalName}.jar</include>
-                    </resource>
-                </resources>
-            </configuration>
-        </plugin>
-        </plugins>
+            <version>0.4.12</version>
+                <configuration>
+                    <imageName>${docker.imageName}</imageName>
+                    <baseImage>${docker.registry}/tap-base-java:java8-jessie</baseImage>
+                    <cmd>java $JAVA_OPTS -jar ${project.build.finalName}.jar</cmd>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                    <env>
+                        <PORT>8080</PORT>
+                        <JAVA_OPTS>-Xss228k -Xmx512m -XX:MetaspaceSize=128m</JAVA_OPTS>                        
+                    </env>
+                    <useConfigFile>true</useConfigFile>
+                </configuration>
+          </plugin>
+          </plugins>
     </build>
 </project>
 
