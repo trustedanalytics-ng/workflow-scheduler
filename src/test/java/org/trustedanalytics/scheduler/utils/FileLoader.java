@@ -17,6 +17,7 @@ package org.trustedanalytics.scheduler.utils;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 
 public class FileLoader {
@@ -44,5 +45,11 @@ public class FileLoader {
             throw new IllegalStateException(String.format("Could not read file resource normalized (%s)", name));
         }
         return fileContent.replaceAll("[ \t\r]","").trim();
+    }
+
+    public static String getResourceFilePath(String path) {
+        ClassLoader classLoader = FileLoader.class.getClassLoader();
+        File file = new File(classLoader.getResource(path).getFile());
+        return file.getAbsolutePath();
     }
 }

@@ -34,4 +34,6 @@ public interface HdfsConfigProvider {
     Configuration getHadoopConf();
 
     String getHdfsOrgUri(UUID org);
+
+    String getResourceManager();
 }

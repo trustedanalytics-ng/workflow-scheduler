@@ -29,10 +29,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
 import org.trustedanalytics.scheduler.*;
 import org.trustedanalytics.scheduler.client.OozieClient;
+import org.trustedanalytics.scheduler.filesystem.HdfsConfigProviderFromEnv;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.utils.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -116,5 +118,6 @@ public class TestConfiguration {
         LOGGER.info("postgres enabled");
         return new DatabaseProvider(mockEnv, objectMapper());
     }
+
 }
 

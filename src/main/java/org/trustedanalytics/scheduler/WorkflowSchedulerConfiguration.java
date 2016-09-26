@@ -38,9 +38,6 @@ public class WorkflowSchedulerConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowSchedulerConfiguration.class);
 
-    @Value("${job.tracker}")
-    private String jobTracker;
-
     @Value("${sqoop.metastore}")
     private String sqoopMetastore;
 
@@ -55,7 +52,7 @@ public class WorkflowSchedulerConfiguration {
     public JobContext jobContext() {
         LOGGER.info("Creating job context from env");
         return JobContext.builder()
-            .jobTracker(jobTracker)
+            .jobTracker(hdfsConfigProvider.getResourceManager())
             .sqoopMetastore(sqoopMetastore)
             .nameNode(hdfsConfigProvider.getHdfsUri())
             .oozieApiUrl(oozieApiUrl)

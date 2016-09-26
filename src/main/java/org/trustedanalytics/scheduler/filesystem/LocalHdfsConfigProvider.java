@@ -53,4 +53,9 @@ public class LocalHdfsConfigProvider implements HdfsConfigProvider{
     public String getHdfsOrgUri(UUID org) {
         return null;
     }
+
+    @Override
+    public String getResourceManager() {
+        return null;
+    }
 }
