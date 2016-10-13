@@ -92,8 +92,12 @@ public class HdfsConfigProviderFromEnv implements HdfsConfigProvider {
         if (StringUtils.isNotEmpty(ids)) {
                 String id1 = ids.split(",")[0];
                 resourceManager = yarnConf.get("yarn.resourcemanager.address." + id1);
-                LOGGER.info("Resource manager from yarn config {}", resourceManager);
+
             }
+        else {
+            resourceManager = yarnConf.get("yarn.resourcemanager.address");
+        }
+        LOGGER.info("Resource manager from yarn config {}", resourceManager);
         if (StringUtils.isEmpty(resourceManager)) {
             LOGGER.error("Could not determine resource manager host");
         }

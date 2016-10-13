@@ -16,6 +16,7 @@
 package org.trustedanalytics.scheduler;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -27,6 +28,7 @@ import org.trustedanalytics.scheduler.utils.FileLoader;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration(classes=TestConfiguration.class)
@@ -39,7 +41,16 @@ public class HdfsConfigProviderFromEnvTest {
         MockEnvironment mockEnvironment = getMockEnvironment();
         HdfsConfigProviderFromEnv provider = new HdfsConfigProviderFromEnv(mockEnvironment);
         String rm = provider.getResourceManager();
-        assertEquals(rm, RESOURCE_MANAGER_HOST1);
+        assertEquals(RESOURCE_MANAGER_HOST1,rm);
+    }
+
+    @Test
+    public void should_return_rm_no_ha() throws IOException {
+        MockEnvironment mockEnvironment = getMockEnvironment();
+        mockEnvironment.setProperty("yarn.conf.dir",FileLoader.getResourceFilePath("no_ha_yarn_conf"));
+        HdfsConfigProviderFromEnv provider = new HdfsConfigProviderFromEnv(mockEnvironment);
+        String rm = provider.getResourceManager();
+        assertEquals(RESOURCE_MANAGER_HOST1, rm);
     }
 
 
@@ -49,7 +60,7 @@ public class HdfsConfigProviderFromEnvTest {
         mockEnvironment.setProperty("yarn.conf.dir",FileLoader.getResourceFilePath("empty_conf"));
         HdfsConfigProviderFromEnv provider = new HdfsConfigProviderFromEnv(mockEnvironment);
         String rm = provider.getResourceManager();
-        assertEquals(rm, "");
+        assertTrue(StringUtils.isEmpty(rm));
     }
 
     private MockEnvironment getMockEnvironment() {
