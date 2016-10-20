@@ -25,12 +25,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.trustedanalytics.utils.errorhandling.ErrorLogger;
 import org.trustedanalytics.utils.errorhandling.RestErrorHandler;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @ControllerAdvice
@@ -64,6 +66,12 @@ public class WorkflowSchedulerExceptionHandler {
         BindingResult result = e.getBindingResult();
         List<FieldError> fieldErrors = result.getFieldErrors();
         ErrorLogger.logAndSendErrorResponse(LOGGER, response, BAD_REQUEST, processFieldErrors(fieldErrors), e);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public void handleMissingParams(MissingServletRequestParameterException e, HttpServletResponse response) throws IOException {
+        LOGGER.error("Missing parameter: {}", e.getParameterName());
+        ErrorLogger.logAndSendErrorResponse(LOGGER, response, BAD_REQUEST, e.getMessage(), e);
     }
 
     private String processFieldErrors(List<FieldError> fieldErrors) {

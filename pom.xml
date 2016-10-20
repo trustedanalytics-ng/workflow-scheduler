@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.3</version>
+    <version>0.6.4</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -232,6 +232,7 @@
                     <env>
                         <PORT>8080</PORT>
                         <JAVA_OPTS>-Xss228k -Xmx512m -XX:MetaspaceSize=128m</JAVA_OPTS>                        
+			<VERSION>${project.artifactId}-${project.version}</VERSION>
                     </env>
                     <useConfigFile>true</useConfigFile>
                 </configuration>
