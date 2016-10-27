@@ -19,6 +19,13 @@ sqoop.metastore: jdbc:hsqldb:hsql://localhost:16000/sqoop
 
 oozie.schedule.frequency.minimum: 300
 
+cloudera:
+ user: ${cloudera.user:}
+ password: ${cloudera.password:}
+ url: ${cloudera.address:}
+ store: ${cloudera.truststore:}
+ storePassword: ${cloudera.truststore.password:}
+
 ---
 
 spring:
@@ -52,3 +59,9 @@ spring.datasource.username: ${postgres.username}
 spring.datasource.password: ${postgres.password}
 
 oozie.schedule.frequency.minimum: 300
+yarn:
+  cloudera:
+    user: ${cloudera.user:}
+    password: ${cloudera.password:}
+    store: ${cloudera.truststore:}
+    storePassword: ${cloudera.truststore.password:}

@@ -36,6 +36,7 @@ import org.trustedanalytics.scheduler.utils.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Properties;
@@ -93,7 +94,7 @@ public class TestConfiguration {
     }
 
     @Bean
-    public OozieClient getOozieClient() throws IOException {
+    public OozieClient getOozieClient() throws IOException, GeneralSecurityException {
         return new OozieClient(new MockRestOperationsFactory(), new MockTokenProvider(), jobContext);
     }
 

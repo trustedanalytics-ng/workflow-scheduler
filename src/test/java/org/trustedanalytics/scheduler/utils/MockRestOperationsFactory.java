@@ -17,16 +17,18 @@ package org.trustedanalytics.scheduler.utils;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.trustedanalytics.scheduler.config.ClouderaConfiguration;
 import org.trustedanalytics.scheduler.filesystem.LocalHdfsConfigProvider;
 import org.trustedanalytics.scheduler.rest.RestOperationsFactory;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @Component
 public class MockRestOperationsFactory extends RestOperationsFactory {
 
-    public MockRestOperationsFactory() throws IOException {
-        super(new LocalHdfsConfigProvider());
+    public MockRestOperationsFactory() throws IOException, GeneralSecurityException {
+        super(new LocalHdfsConfigProvider(), null, null);
     }
 
     public RestTemplate getRestTemplate()  {
