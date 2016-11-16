@@ -19,6 +19,7 @@ import com.jamesmurty.utils.XMLBuilder2;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.trustedanalytics.scheduler.oozie.serialization.DeleteFileNode.WorkflowDeleteFileBuilder;
 import org.trustedanalytics.scheduler.oozie.serialization.SqoopNode.WorkflowActionNodeBuilder;
 import org.trustedanalytics.scheduler.oozie.serialization.CreateFileNode.WorkflowCreateFileBuilder;
 import org.trustedanalytics.scheduler.oozie.serialization.DecisionNode.WorkflowDecisionNodeBuilder;
@@ -102,11 +103,11 @@ public class WorkflowInstance {
             return childBuilder;
         }
 
-        public WorkflowDecisionNodeBuilder sqoopFileExistDecision(String flagPath) {
+        public WorkflowDecisionNodeBuilder fileExistDecision(String flagPath) {
             WorkflowDecisionNodeBuilder childBuilder = DecisionNode.builder()
                 .setParent(this)
                 .setCondition(String.format("${fs:exists(\"%s\") eq true}", flagPath));
-            actionNodes.add(childBuilder);
+                actionNodes.add(childBuilder);
             return childBuilder;
         }
 
@@ -125,6 +126,12 @@ public class WorkflowInstance {
             WorkflowCreateFileBuilder createFileBuilder = CreateFileNode.builder().setParent(this);
             actionNodes.add(createFileBuilder);
             return createFileBuilder;
+        }
+
+        public WorkflowDeleteFileBuilder deleteFile() {
+            WorkflowDeleteFileBuilder deleteFileBuilder = DeleteFileNode.builder().setParent(this);
+            actionNodes.add(deleteFileBuilder);
+            return deleteFileBuilder;
         }
 
         public WorkflowInstanceBuilder setName(String workflowName) {

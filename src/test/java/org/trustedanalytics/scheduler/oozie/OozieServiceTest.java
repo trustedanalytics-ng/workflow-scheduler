@@ -61,12 +61,9 @@ public class OozieServiceTest  {
 
     @Test
     public void createValidXMLConfigTestAppendModeUTCCoordinatedJob() throws IOException {
-
         SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
-
         sqoopScheduledImportJob.getSqoopImport().setSchema("");
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
-
         validateCoordinatorAndWorkflow("workflow.xml", "coordinator.xml");
     }
 
@@ -104,12 +101,9 @@ public class OozieServiceTest  {
     @Test
     public void importModeIncrementalFlagsAreSetCorrectlyCoordinatedJob() throws IOException {
         SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
-
         sqoopScheduledImportJob.getSqoopImport().setImportMode("incremental");
         sqoopScheduledImportJob.getSqoopImport().setCheckColumn("id");
-
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
-
         assertTrue(sqoopScheduledImportJob.getSqoopImport().getAppend());
         assertTrue(sqoopScheduledImportJob.getSqoopImport().getIncremental());
         assertFalse(sqoopScheduledImportJob.getSqoopImport().getOverwrite());
@@ -118,10 +112,17 @@ public class OozieServiceTest  {
     @Test
     public void createValidXMLConfigWithSchemaCoordinatedJob() throws IOException {
         SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
-
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
-
         validateCoordinatorAndWorkflow("workflow_with_schema.xml", "coordinator.xml");
+    }
+
+    @Test
+    public void createValidXMLConfigOverwriteModeCoordinatedJob() throws IOException {
+        SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
+        sqoopScheduledImportJob.getSqoopImport().setOverwrite(true);
+        sqoopScheduledImportJob.getSqoopImport().setSchema("");
+        oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
+        validateCoordinatorAndWorkflow("workflow_overwrite.xml", "coordinator.xml");
     }
 
 
@@ -129,12 +130,9 @@ public class OozieServiceTest  {
     @Test
     public void createValidXMLConfigPostgresDriverCoordinatedJob () throws IOException {
         SqoopScheduledImportJob sqoopScheduledImportJob = getDefaultScheduledSqoopJob();
-
         sqoopScheduledImportJob.getSqoopImport().setSchema("");
         sqoopScheduledImportJob.getSqoopImport().setJdbcUri("jdbc:postgresql");
-
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
-
         validateCoordinatorAndWorkflow("workflow_postgresql.xml", "coordinator.xml");
     }
 

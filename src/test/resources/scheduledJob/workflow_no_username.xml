@@ -30,6 +30,13 @@
         <ok to="test-exec"/>
         <error to="fail"/>
     </action>
+    <action name="test-cleanup">
+        <fs>
+            <delete path="${targetDir}"/>
+        </fs>
+        <ok to="test-exec"/>
+        <error to="fail"/>
+    </action>
     <action name="test-exec">
         <sqoop xmlns="uri:oozie:sqoop-action:0.4">
             <job-tracker>test_job_tracker</job-tracker>

@@ -2,7 +2,7 @@
     <start to="test-decision"/>
     <decision name="test-decision">
         <switch>
-            <case to="test-exec">${fs:exists("oozie-jobs/test/FAKE_GUID/sqoop-create") eq true}</case>
+            <case to="test-cleanup">${fs:exists("oozie-jobs/test/FAKE_GUID/sqoop-create") eq true}</case>
             <default to="test-create"/>
         </switch>
     </decision>

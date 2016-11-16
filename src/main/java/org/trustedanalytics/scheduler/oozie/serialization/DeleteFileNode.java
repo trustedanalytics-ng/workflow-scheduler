@@ -20,39 +20,39 @@ import org.trustedanalytics.scheduler.oozie.serialization.WorkflowInstance.Workf
 
 import java.util.Objects;
 
-public class CreateFileNode implements XmlNode {
+public class DeleteFileNode implements XmlNode {
 
     private final String name;
     private final String path;
     private final String then;
 
-    public CreateFileNode(WorkflowCreateFileBuilder builder) {
+    public DeleteFileNode(WorkflowDeleteFileBuilder builder) {
         this.name = Objects.requireNonNull(builder.name, "name");
         this.path = Objects.requireNonNull(builder.path, "path");
         this.then = Objects.requireNonNull(builder.then, "then");
     }
 
-    public static WorkflowCreateFileBuilder builder() {
-        return new WorkflowCreateFileBuilder();
+    public static WorkflowDeleteFileBuilder builder() {
+        return new WorkflowDeleteFileBuilder();
     }
 
     @Override
     public XMLBuilder2 asXmlBuilder() {
         return XMLBuilder2.create("action")
-                          .a("name",name)
-                            .e("fs")
-                              .e("touchz")
-                                .a("path",path)
+                           .a("name",name)
+                             .e("fs")
+                               .e("delete").
+                                a("path",path)
+                              .up()
                             .up()
-                          .up()
                             .e("ok")
                               .a("to", then)
                             .up()
-                          .e("error")
-                            .a("to","fail");
+                           .e("error")
+                             .a("to","fail");
     }
 
-    public static class WorkflowCreateFileBuilder implements BuilderNode {
+    public static class WorkflowDeleteFileBuilder implements BuilderNode {
 
         private WorkflowInstanceBuilder parent;
         private String name;
@@ -60,26 +60,26 @@ public class CreateFileNode implements XmlNode {
         private String then;
 
         @Override
-        public CreateFileNode build() {
-            return new CreateFileNode(this);
+        public DeleteFileNode build() {
+            return new DeleteFileNode(this);
         }
 
-        protected WorkflowCreateFileBuilder setParent(WorkflowInstanceBuilder parent) {
+        protected WorkflowDeleteFileBuilder setParent(WorkflowInstanceBuilder parent) {
             this.parent = parent;
             return this;
         }
 
-        public WorkflowCreateFileBuilder setPath(String path) {
+        public WorkflowDeleteFileBuilder setPath(String path) {
             this.path = path;
             return this;
         }
 
-        public WorkflowCreateFileBuilder setName(String name) {
+        public WorkflowDeleteFileBuilder setName(String name) {
             this.name = name;
             return this;
         }
 
-        public WorkflowCreateFileBuilder then(String then) {
+        public WorkflowDeleteFileBuilder then(String then) {
             this.then = then;
             return this;
         }

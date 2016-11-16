@@ -141,13 +141,15 @@ public class OozieService {
         final String flagJobName = name + "-flag";
         final String createJobName = name + "-create";
         final String decisionNodeName = name + "-decision";
+        final String cleanupNodeName = name + "-cleanup";
 
         return WorkflowInstance.builder(jobContext)
                 .setName(name + "-app")
                 .setStartNode(decisionNodeName)
-                .sqoopFileExistDecision(flagPath.toString())
+                .fileExistDecision(flagPath.toString())
                    .setName(decisionNodeName)
-                   .then(sqoopExecJobName)
+                    // go to cleanup node first, but only in case we remove previous import results (overwrite)
+                   .then(sqoopImportJob.getSqoopImport().getOverwrite() ? cleanupNodeName : sqoopExecJobName)
                    .orElse(createJobName)
                    .and()
                 .sqoopAction()
@@ -161,13 +163,18 @@ public class OozieService {
                     .setPath(flagPath.toString())
                     .setName(flagJobName)
                     .then(sqoopExecJobName)
-                    .and()
+                .and()
+                .deleteFile()
+                    .setPath(sqoopImportJob.getSqoopImport().getTargetDir())
+                    .setName(cleanupNodeName)
+                    .then(sqoopExecJobName)
+                .and()
                 .sqoopAction()
                 .setCommand(new SqoopCommand("job", jobContext.getSqoopMetastore())
                         .exec(jobId, sqoopImportJob.getSqoopImport()).command())
                 .setName(sqoopExecJobName)
                 .then("end")
-                    .and()
+                .and()
                 .sqoopKill(ERR_MSG)
                 .build()
                 .asStream();
