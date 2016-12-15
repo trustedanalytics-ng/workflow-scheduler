@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.trustedanalytics.scheduler.utils;
 
-public interface JobIdSupplier {
-    String get(String name);
+import org.springframework.stereotype.Component;
+
+
+@Component
+public class UniqueIdSupplier implements JobIdSupplier {
+
+    @Override
+    public String get(String name) {
+        return UniqueId.generate(name).getId();
+    }
 }

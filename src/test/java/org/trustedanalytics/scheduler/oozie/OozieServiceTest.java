@@ -52,7 +52,7 @@ public class OozieServiceTest  {
     @Autowired
     OozieService oozieService;
 
-    private UUID orgId = UUID.fromString("1981838e-bcc9-4402-95eb-60c7f3ca6fbc");;
+    private String orgId = "defaultOrg";
 
     @Before
     public void prepare() {
@@ -124,8 +124,6 @@ public class OozieServiceTest  {
         oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, orgId);
         validateCoordinatorAndWorkflow("workflow_overwrite.xml", "coordinator.xml");
     }
-
-
 
     @Test
     public void createValidXMLConfigPostgresDriverCoordinatedJob () throws IOException {

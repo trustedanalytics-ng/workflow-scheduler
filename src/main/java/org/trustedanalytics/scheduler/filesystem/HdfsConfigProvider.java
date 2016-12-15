@@ -17,7 +17,6 @@ package org.trustedanalytics.scheduler.filesystem;
 
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.UUID;
 
 public interface HdfsConfigProvider {
 
@@ -33,7 +32,7 @@ public interface HdfsConfigProvider {
 
     Configuration getHadoopConf();
 
-    String getHdfsOrgUri(UUID org);
+    String getHdfsOrgUri(String org);
 
     String getResourceManager();
 }

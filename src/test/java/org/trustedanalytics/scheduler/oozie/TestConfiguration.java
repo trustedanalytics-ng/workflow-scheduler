@@ -29,12 +29,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
 import org.trustedanalytics.scheduler.*;
 import org.trustedanalytics.scheduler.client.OozieClient;
-import org.trustedanalytics.scheduler.filesystem.HdfsConfigProviderFromEnv;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.utils.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
@@ -50,11 +48,6 @@ public class TestConfiguration {
     public static final String TEST_METASTORE_URL = "test_metastore_url:32158";
     public static final String OOZIE_API_URL = "oozie_api_url";
     public static final String TEST_HADOOP_HOME = "test_hadoop_home";
-
-    /*
-     *  create sqoop.metastore property for unit test
-     *
-     */
 
     private JobContext jobContext;
 

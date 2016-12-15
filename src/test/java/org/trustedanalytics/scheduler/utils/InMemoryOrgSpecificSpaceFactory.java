@@ -25,7 +25,7 @@ import java.util.UUID;
 public class InMemoryOrgSpecificSpaceFactory implements OrgSpecificSpaceFactory {
 
     @Override
-    public OrgSpecificSpace getOrgSpecificSpace(UUID orgID) throws IOException {
+    public OrgSpecificSpace getOrgSpecificSpace(String orgID) throws IOException {
 
         Objects.requireNonNull(orgID, "Organization identifier is required");
         return new InMemoryOrgSpecificSpace();

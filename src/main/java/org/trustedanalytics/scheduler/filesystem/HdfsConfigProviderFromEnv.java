@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.UUID;
 
 @Component
 @Profile("cloud")
@@ -105,7 +104,7 @@ public class HdfsConfigProviderFromEnv implements HdfsConfigProvider {
     }
 
     @Override
-    public String getHdfsOrgUri(UUID org) {
+    public String getHdfsOrgUri(String org) {
         return PathTemplate.resolveOrg(getHdfsUri(), org);
     }
 
@@ -117,8 +116,8 @@ public class HdfsConfigProviderFromEnv implements HdfsConfigProvider {
         private PathTemplate() {
         }
 
-        private static String resolveOrg(String url, UUID org) {
-            ImmutableMap<String, UUID> values = ImmutableMap.of(ORG_PLACEHOLDER, org);
+        private static String resolveOrg(String url, String org) {
+            ImmutableMap<String, String> values = ImmutableMap.of(ORG_PLACEHOLDER, org);
             return new StrSubstitutor(values, PLACEHOLDER_PREFIX, PLACEHOLDER_SUFIX).replace(url);
         }
     }

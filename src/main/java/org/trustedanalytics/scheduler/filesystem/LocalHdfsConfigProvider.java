@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
 
 @Component
 @Profile("local")
@@ -50,7 +49,7 @@ public class LocalHdfsConfigProvider implements HdfsConfigProvider{
     }
 
     @Override
-    public String getHdfsOrgUri(UUID org) {
+    public String getHdfsOrgUri(String org) {
         return null;
     }
 

@@ -62,9 +62,9 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
     }
 
     @Override
-    public Path resolveOozieDir(String jobName, String appPath) {
+    public Path resolveOozieDir(String jobId, String appPath) {
         if(StringUtils.isEmpty(appPath)) {
-            return resolveDir("oozie-jobs", jobName, "FAKE_GUID");
+            return resolveDir("oozie-jobs", jobId);
         } else {
             return resolveDir(appPath);
         }

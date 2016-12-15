@@ -46,7 +46,7 @@ public class WorkflowSchedulerConfigurationProviderTest {
 
     @Test
     public void testTimezoneFiltering() {
-        WorkflowSchedulerConfigurationEntity conf = provider.getConfiguration(UUID.randomUUID());
+        WorkflowSchedulerConfigurationEntity conf = provider.getConfiguration(UUID.randomUUID().toString());
         assertTrue(conf.getTimezones().contains("Etc/GMT+5"));
         assertTrue(conf.getTimezones().contains("Europe/Warsaw"));
         assertTrue(conf.getTimezones().contains("GMT"));

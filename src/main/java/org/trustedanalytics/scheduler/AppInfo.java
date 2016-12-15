@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package org.trustedanalytics.scheduler.utils;
+package org.trustedanalytics.scheduler;
 
-public interface JobIdSupplier {
-    String get(String name);
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class AppInfo {
+    String name;
+    String version;
+    String commit;
 }

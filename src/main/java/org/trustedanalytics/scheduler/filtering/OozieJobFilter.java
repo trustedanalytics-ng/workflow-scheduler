@@ -37,15 +37,15 @@ public class OozieJobFilter {
         this.oozieJobRepository = oozieJobRepository;
     }
 
-    public List<OozieCoordinatedJobInformation> filterCoordinatorByOrg(List<OozieCoordinatedJobInformation> coordinatedJobs, UUID org) {
+    public List<OozieCoordinatedJobInformation> filterCoordinatorByOrg(List<OozieCoordinatedJobInformation> coordinatedJobs, String org) {
         return byOrg(coordinatedJobs, org, job -> job.getCoordJobId());
     }
 
-    public List<OozieWorkflowJobInformationExtended> filterWorkflowByOrg(List<OozieWorkflowJobInformationExtended> workflowJobs, UUID org) {
+    public List<OozieWorkflowJobInformationExtended> filterWorkflowByOrg(List<OozieWorkflowJobInformationExtended> workflowJobs, String org) {
         return byOrg(workflowJobs, org, job -> StringUtils.isEmpty(job.getCoordinatorId()) ? job.getId() : job.getCoordinatorId());
     }
 
-    private <T> List<T> byOrg(List<T> jobs, UUID org, Function<T, String> func) {
+    private <T> List<T> byOrg(List<T> jobs, String org, Function<T, String> func) {
         return jobs.stream()
             .filter(job -> oozieJobRepository
                 .findByOrgId(org.toString())

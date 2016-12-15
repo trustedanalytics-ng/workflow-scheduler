@@ -1,7 +1,7 @@
 <coordinator-app xmlns="uri:oozie:coordinator:0.4" end="2077-07-06T08:15Z" frequency="${coord:minutes(10)}" name="test"  start="2077-07-04T08:15Z"  timezone="America/Los_Angeles" >
     <action>
         <workflow>
-            <app-path>oozie-jobs/test/FAKE_GUID/scheduledJob</app-path>
+            <app-path>oozie-jobs/test-timestamp/scheduledJob</app-path>
             <configuration>
                 <property>
                     <name>jobTracker</name>
@@ -13,7 +13,7 @@
                 </property>
                 <property>
                     <name>queueName</name>
-                    <value>1981838e-bcc9-4402-95eb-60c7f3ca6fbc</value>
+                    <value>defaultOrg</value>
                 </property>
                 <property>
                     <name>oozie.libpath</name>

@@ -25,9 +25,9 @@ public interface OrgSpecificSpace {
 
     Path createOozieWorkflow(Path workflowDirPath, InputStream in) throws IOException;
 
-    Path resolveSqoopTargetDir(String jobName, String targetDir);
+    Path resolveSqoopTargetDir(String jobId, String targetDir);
 
-    Path resolveOozieDir(String jobName, String appPath);
+    Path resolveOozieDir(String jobId, String appPath);
 
     String getNameNode();
 

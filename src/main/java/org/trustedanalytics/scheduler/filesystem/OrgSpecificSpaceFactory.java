@@ -16,9 +16,8 @@
 package org.trustedanalytics.scheduler.filesystem;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @FunctionalInterface
 public interface OrgSpecificSpaceFactory {
-    OrgSpecificSpace getOrgSpecificSpace(UUID orgID) throws IOException;
+    OrgSpecificSpace getOrgSpecificSpace(String orgID) throws IOException;
 }

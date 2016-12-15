@@ -15,14 +15,10 @@
  */
 package org.trustedanalytics.scheduler.utils;
 
-import java.util.function.Supplier;
-
-public class ConstantJobIdSupplier implements Supplier<String> {
-
-    private static final String jobID = "00000000-0000-0000-0000-000000000007";
+public class ConstantJobIdSupplier implements JobIdSupplier {
 
     @Override
-    public String get() {
-        return jobID;
+    public String get(String name) {
+        return name + "-timestamp";
     }
 }

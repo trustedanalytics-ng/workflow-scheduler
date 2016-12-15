@@ -31,7 +31,7 @@ public class JobContext {
     private String sqoopMetastore;
     private String oozieApiUrl;
 
-    public void resolveQueueName(UUID org) throws IOException {
-        this.queueName = org.toString();
+    public void resolveQueueName(String org) throws IOException {
+        this.queueName = org;
     }
 }

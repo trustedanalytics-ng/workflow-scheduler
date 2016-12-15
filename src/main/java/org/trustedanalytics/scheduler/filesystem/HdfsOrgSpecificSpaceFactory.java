@@ -21,7 +21,6 @@ import org.trustedanalytics.scheduler.security.TokenProvider;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.UUID;
 
 @Component
 public class HdfsOrgSpecificSpaceFactory implements OrgSpecificSpaceFactory {
@@ -36,7 +35,7 @@ public class HdfsOrgSpecificSpaceFactory implements OrgSpecificSpaceFactory {
     }
 
     @Override
-    public OrgSpecificSpace getOrgSpecificSpace(UUID orgID) throws IOException {
+    public OrgSpecificSpace getOrgSpecificSpace(String orgID) throws IOException {
 
         Objects.requireNonNull(orgID, "Organization identifier is required");
         return new HdfsOrgSpecificSpace(fileSystemFactory.getFileSystem(orgID), orgID, tokenProvider);

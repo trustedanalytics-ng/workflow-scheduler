@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.endpoint.InfoEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.trustedanalytics.scheduler.config.ClouderaConfiguration;
@@ -38,6 +39,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.LinkedHashMap;
 
 @Configuration
 public class WorkflowSchedulerConfiguration {
@@ -49,6 +51,13 @@ public class WorkflowSchedulerConfiguration {
 
     @Value("${oozie.api.url:host}")
     private String oozieApiUrl;
+
+
+    @Value("${project.ArtifactId}")
+    private String artifactId;
+
+    @Value("${project.version}")
+    private String projectVersion;
 
     @Autowired
     private HdfsConfigProvider hdfsConfigProvider;
@@ -88,6 +97,11 @@ public class WorkflowSchedulerConfiguration {
             ks.load(fis, clouderaConfiguration.getStorePassword().toCharArray());
         }
         return SSLContexts.custom().loadTrustMaterial(ks).build();
+    }
+
+    @Bean
+    public AppInfo appInfo() {
+        return new AppInfo(artifactId,projectVersion,null);
     }
 
 }

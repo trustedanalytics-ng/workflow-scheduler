@@ -8,7 +8,7 @@
             <configuration>
                 <property>
                     <name>mapred.job.queue.name</name>
-                    <value>1981838e-bcc9-4402-95eb-60c7f3ca6fbc</value>
+                    <value>defaultOrg</value>
                 </property>
             </configuration>
             <command>import --connect FAKE_JDBC_URI --table table_in_database --username john --password doe --num-mappers 1 --target-dir SqoopTargetDirectory --append --connection-param-file driver.properties --schema test_schema</command>

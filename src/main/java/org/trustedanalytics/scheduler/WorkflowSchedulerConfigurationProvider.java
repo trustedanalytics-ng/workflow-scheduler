@@ -56,7 +56,7 @@ public class WorkflowSchedulerConfigurationProvider {
         this.hdfsConfigProvider = hdfsConfigProvider;
     }
 
-    public WorkflowSchedulerConfigurationEntity getConfiguration(UUID orgId) {
+    public WorkflowSchedulerConfigurationEntity getConfiguration(String orgId) {
         return WorkflowSchedulerConfigurationEntity.builder()
             .databases(databases)
             .timezones(zones)

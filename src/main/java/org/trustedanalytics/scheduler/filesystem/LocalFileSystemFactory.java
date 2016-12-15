@@ -21,14 +21,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Component
 @Profile("local")
 public class LocalFileSystemFactory implements FileSystemFactory {
 
     @Override
-    public FileSystem getFileSystem(UUID org) throws IOException {
+    public FileSystem getFileSystem(String org) throws IOException {
         Configuration configuration = new Configuration();
         return FileSystem.get(configuration);
     }

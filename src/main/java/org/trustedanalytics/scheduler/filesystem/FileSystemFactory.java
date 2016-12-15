@@ -18,9 +18,8 @@ package org.trustedanalytics.scheduler.filesystem;
 import org.apache.hadoop.fs.FileSystem;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @FunctionalInterface
 public interface FileSystemFactory {
-    FileSystem getFileSystem(UUID org) throws IOException;
+    FileSystem getFileSystem(String org) throws IOException;
 }

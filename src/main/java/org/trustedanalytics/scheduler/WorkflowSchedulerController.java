@@ -18,6 +18,7 @@ package org.trustedanalytics.scheduler;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.trustedanalytics.scheduler.client.OozieClient;
@@ -40,7 +41,6 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -56,6 +56,8 @@ public class WorkflowSchedulerController {
     private final WorkflowSchedulerConfigurationProvider configurationProvider;
     private final SqoopImportJobValidator sqoopImportJobValidator;
     private final OozieScheduledJobValidator oozieScheduledJobValidator;
+    private final AppInfo appInfo;
+
 
     @Autowired
     public WorkflowSchedulerController(OozieClient oozieClient,
@@ -64,7 +66,8 @@ public class WorkflowSchedulerController {
                                        OozieJobFilter oozieJobFilter,
                                        WorkflowSchedulerConfigurationProvider configurationProvider,
                                        SqoopImportJobValidator sqoopImportJobValidator,
-                                       OozieScheduledJobValidator oozieScheduledJobValidator) {
+                                       OozieScheduledJobValidator oozieScheduledJobValidator,
+                                       AppInfo appInfo) {
         this.oozieClient = oozieClient;
         this.oozieService = oozieService;
         this.oozieJobRepository = oozieJobRepository;
@@ -72,6 +75,7 @@ public class WorkflowSchedulerController {
         this.configurationProvider = configurationProvider;
         this.sqoopImportJobValidator = sqoopImportJobValidator;
         this.oozieScheduledJobValidator = oozieScheduledJobValidator;
+        this.appInfo = appInfo;
     }
 
     @InitBinder("sqoopScheduledImportJob")
@@ -90,7 +94,7 @@ public class WorkflowSchedulerController {
     )
     @RequestMapping(value = "/rest/v1/oozie/jobs/workflow", method = RequestMethod.POST)
     public OozieJobId scheduleOozieJob(
-            @RequestParam(value="org") Optional<UUID> org,
+            @RequestParam(value="org") Optional<String> org,
             @RequestBody @Valid SqoopImportJob sqoopImportJob) throws IOException {
         OozieJobId jobId = oozieService.sqoopImportJob(sqoopImportJob, org.get());
         oozieJobRepository.save(new OozieJobEntity(jobId.getId(), org.get().toString()));
@@ -103,7 +107,7 @@ public class WorkflowSchedulerController {
     )
     @RequestMapping(value = "/rest/v1/oozie/schedule_job/coordinated", method = RequestMethod.POST)
     public OozieJobId scheduleOozieCoordinatedJob(
-            @RequestParam(value="org") Optional<UUID> org,
+            @RequestParam(value="org") Optional<String> org,
             @RequestBody @Valid SqoopScheduledImportJob sqoopScheduledImportJob) throws IOException {
         OozieJobId jobId = oozieService.sqoopScheduledImportJob(sqoopScheduledImportJob, org.get());
         oozieJobRepository.save(new OozieJobEntity(jobId.getId(), org.get().toString()));
@@ -116,7 +120,7 @@ public class WorkflowSchedulerController {
     )
     @RequestMapping(value = "/rest/v1/oozie/jobs/coordinated", method = RequestMethod.GET)
     public List<OozieCoordinatedJobInformation> getOozieCoordinatedJobsInformation(
-            @RequestParam(value = "org") UUID org,
+            @RequestParam(value = "org") String org,
             @RequestParam(value = "unit") Optional<String> unit,
             @RequestParam(value = "amount") Optional<Integer> amount) {
         final String timeUnit = unit.orElse("days");
@@ -131,7 +135,7 @@ public class WorkflowSchedulerController {
     )
     @RequestMapping(value = "/rest/v1/oozie/jobs/workflow", method = RequestMethod.GET)
     public List<OozieWorkflowJobInformationExtended> getOozieWorkflowJobsInformation(
-            @RequestParam(value = "org") UUID org,
+            @RequestParam(value = "org") String org,
             @RequestParam(value = "unit") Optional<String> unit,
             @RequestParam(value = "amount") Optional<Integer> amount) {
         final String timeUnit = unit.orElse("days");
@@ -208,9 +212,13 @@ public class WorkflowSchedulerController {
     )
     @RequestMapping(value = "/rest/v1/oozie/configuration", method = GET, produces = APPLICATION_JSON_VALUE)
     public WorkflowSchedulerConfigurationEntity getConfiguration(
-        @RequestParam(value = "org") UUID org) {
+        @RequestParam(value = "org") String org) {
         return configurationProvider.getConfiguration(org);
     }
 
+    @RequestMapping(value = "/info", method = GET, produces = APPLICATION_JSON_VALUE)
+    public AppInfo getInfo() {
+        return appInfo;
+    }
 
 }

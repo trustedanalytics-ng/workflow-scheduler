@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 public class HdfsOrgSpecificSpace implements OrgSpecificSpace {
 
@@ -43,16 +41,14 @@ public class HdfsOrgSpecificSpace implements OrgSpecificSpace {
 
     private final FileSystem fileSystem;
     private final Path root;
-    private final Supplier<String> random;
     private final TokenProvider tokenProvider;
 
-    public HdfsOrgSpecificSpace(FileSystem fileSystem, UUID orgId, TokenProvider tokenProvider) {
+    public HdfsOrgSpecificSpace(FileSystem fileSystem, String orgId, TokenProvider tokenProvider) {
         Objects.requireNonNull(fileSystem);
         Objects.requireNonNull(orgId);
 
         this.fileSystem = fileSystem;
         this.root = new Path(String.format(fileSystem.getUri() + "/org/%s/", orgId));
-        this.random = () -> UUID.randomUUID().toString();
         this.tokenProvider = tokenProvider;
     }
 
@@ -71,19 +67,19 @@ public class HdfsOrgSpecificSpace implements OrgSpecificSpace {
     }
 
     @Override
-    public Path resolveSqoopTargetDir(String jobName, String targetDir) {
+    public Path resolveSqoopTargetDir(String jobId, String targetDir) {
 
         if(StringUtils.isEmpty(targetDir)) {
-            return resolveDir(SQOOP_DEFAULT_TARGET_DIR, jobName, random.get());
+            return resolveDir(SQOOP_DEFAULT_TARGET_DIR, jobId);
         } else {
             return resolveDir("user", tokenProvider.getUserId(), targetDir);
         }
     }
 
     @Override
-    public Path resolveOozieDir(String jobName, String appPath) {
+    public Path resolveOozieDir(String jobId, String appPath) {
         if(StringUtils.isEmpty(appPath)) {
-            return resolveDir(OOZIE_JOBS_DIR, jobName, random.get());
+            return resolveDir(OOZIE_JOBS_DIR, jobId);
         } else {
             return resolveDir(appPath);
         }

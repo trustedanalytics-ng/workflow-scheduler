@@ -15,29 +15,27 @@
  */
 package org.trustedanalytics.scheduler.oozie;
 
-import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImportJob;
-import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
+import org.apache.hadoop.fs.Path;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.trustedanalytics.scheduler.client.OozieClient;
 import org.trustedanalytics.scheduler.client.OozieJobId;
 import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpace;
 import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpaceFactory;
 import org.trustedanalytics.scheduler.oozie.jobs.OozieScheduledJob;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopCommand;
+import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopImportJob;
+import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopJobMapper;
 import org.trustedanalytics.scheduler.oozie.jobs.sqoop.SqoopScheduledImportJob;
-
-import org.apache.hadoop.fs.Path;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.trustedanalytics.scheduler.oozie.serialization.CoordinatorInstance;
 import org.trustedanalytics.scheduler.oozie.serialization.JobContext;
 import org.trustedanalytics.scheduler.oozie.serialization.WorkflowInstance;
+import org.trustedanalytics.scheduler.utils.JobIdSupplier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 @Service
 public class OozieService {
@@ -46,57 +44,61 @@ public class OozieService {
     public static final String SQOOP_DRIVER_PROPERTIES_FILE = "driver.properties";
     private final OrgSpecificSpaceFactory orgSpecificSpaceFactory;
     private final OozieClient oozieClient;
-    private final Supplier<String> random;
+    private final JobIdSupplier idSupplier;
     private SqoopJobMapper jobMapper;
     private JobContext jobContext;
 
     @Autowired
-    public OozieService(OrgSpecificSpaceFactory orgSpecificSpaceFactory, OozieClient oozieClient, Supplier jobIdSupplier,
+    public OozieService(OrgSpecificSpaceFactory orgSpecificSpaceFactory, OozieClient oozieClient, JobIdSupplier jobIdSupplier,
                           SqoopJobMapper sqoopJobMapper, JobContext jobContext) {
         this.orgSpecificSpaceFactory = orgSpecificSpaceFactory;
         this.oozieClient = oozieClient;
-        this.random = jobIdSupplier;
+        this.idSupplier = jobIdSupplier;
         this.jobMapper = sqoopJobMapper;
         this.jobContext = jobContext;
     }
 
-    public OozieJobId sqoopImportJob(SqoopImportJob job, UUID orgId) throws IOException {
+    public OozieJobId sqoopImportJob(SqoopImportJob job, String orgId) throws IOException {
+
+        String jobId = idSupplier.get(job.getName());
 
         jobMapper.adjust(job);
         jobContext.resolveQueueName(orgId);
 
         final OrgSpecificSpace space = orgSpecificSpaceFactory.getOrgSpecificSpace(orgId);
-        final Path ooziePath = space.resolveOozieDir(job.getName(), job.getAppPath());
-        final Path targetPath = space.resolveSqoopTargetDir(job.getName(), job.getSqoopImport().getTargetDir());
+        final Path ooziePath = space.resolveOozieDir(jobId, job.getAppPath());
+        final Path targetPath = space.resolveSqoopTargetDir(jobId, job.getSqoopImport().getTargetDir());
 
         job.getSqoopImport().setTargetDir(targetPath.toUri().toString());
 
         final String sqoopWf = space.createOozieWorkflow(ooziePath, sqoopWorkflow(job, jobContext)).getParent().toString();
 
-        space.createFile(new Path(ooziePath, SQOOP_DRIVER_PROPERTIES_FILE), driverProperties(orgId.toString()) );
+        space.createFile(new Path(ooziePath, SQOOP_DRIVER_PROPERTIES_FILE), driverProperties(orgId) );
 
         return oozieClient.submitWorkflowJob(sqoopWf, job.getSqoopImport().getTargetDir());
     }
 
-    public OozieJobId sqoopScheduledImportJob(SqoopScheduledImportJob job, UUID orgId) throws IOException {
+    public OozieJobId sqoopScheduledImportJob(SqoopScheduledImportJob job, String orgId) throws IOException {
+
+        String jobId = idSupplier.get(job.getName());
 
         jobMapper.adjust(job);
 
         final OrgSpecificSpace space = orgSpecificSpaceFactory.getOrgSpecificSpace(orgId);
 
-        final Path ooziePath = space.resolveOozieDir(job.getName(), job.getAppPath());
-        final Path targetPath = space.resolveSqoopTargetDir(job.getName(), job.getSqoopImport().getTargetDir());
+        final Path ooziePath = space.resolveOozieDir(jobId, job.getAppPath());
+        final Path targetPath = space.resolveSqoopTargetDir(jobId, job.getSqoopImport().getTargetDir());
 
         job.getSqoopImport().setTargetDir("${targetDir}");
 
         jobContext.resolveQueueName(orgId);
 
         final String sqoopWf = space.createOozieWorkflow(ooziePath, sqoopCoordinatedWorkflow(job,
-                new Path(ooziePath, "sqoop-create"), jobContext)).getParent().toString();
+                new Path(ooziePath, "sqoop-create"), jobContext, jobId)).getParent().toString();
 
         final String sqoopCr = space.createOozieCoordinator(ooziePath, coordinator(job, sqoopWf, jobContext)).getParent().toString();
 
-        space.createFile(new Path(ooziePath, SQOOP_DRIVER_PROPERTIES_FILE), driverProperties(orgId.toString()) );
+        space.createFile(new Path(ooziePath, SQOOP_DRIVER_PROPERTIES_FILE), driverProperties(orgId) );
 
         return oozieClient.submitCoordinatedJob(sqoopCr, targetPath.toUri().toString());
     }
@@ -134,8 +136,7 @@ public class OozieService {
 
     private InputStream sqoopCoordinatedWorkflow(SqoopScheduledImportJob sqoopImportJob,
                                                  Path flagPath,
-                                                 JobContext jobContext) {
-        final String jobId = random.get();
+                                                 JobContext jobContext, String jobId) {
         final String name = sqoopImportJob.getName();
         final String sqoopExecJobName = name + "-exec";
         final String flagJobName = name + "-flag";
@@ -181,7 +182,9 @@ public class OozieService {
     }
 
     private InputStream driverProperties(String orgId) {
-        String oracleOsuserParam = "v$session.osuser=" + orgId.substring(0,29) + "\n";
+        int maxAcceptableUserNameForOracle = 29;
+        String oracleUserName = orgId.length() > maxAcceptableUserNameForOracle ? orgId.substring(0,maxAcceptableUserNameForOracle) : orgId;
+        String oracleOsuserParam = "v$session.osuser=" + oracleUserName + "\n";
         return new ByteArrayInputStream(oracleOsuserParam.getBytes(StandardCharsets.UTF_8));
     }
 }

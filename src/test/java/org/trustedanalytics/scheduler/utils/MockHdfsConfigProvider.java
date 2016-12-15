@@ -47,7 +47,7 @@ public class MockHdfsConfigProvider implements HdfsConfigProvider {
     }
 
     @Override
-    public String getHdfsOrgUri(UUID org) {
+    public String getHdfsOrgUri(String org) {
         return null;
     }
 
