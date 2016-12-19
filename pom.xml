@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.7</version>
+    <version>0.6.8</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -22,7 +22,6 @@
        <jacoco-measurement-classes>0.500</jacoco-measurement-classes>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <docker.imageName>${project.artifactId}</docker.imageName>
-        <docker.registry>tapimages.us.enableiot.com:8080</docker.registry>
     </properties>
 
     <dependencies>
@@ -220,7 +219,7 @@
             <version>0.4.12</version>
                 <configuration>
                     <imageName>${docker.imageName}</imageName>
-                    <baseImage>${docker.registry}/tap-base-java:java8-jessie</baseImage>
+                    <baseImage>tapimages:8080/tap-base-java:java8-jessie</baseImage>
                     <cmd>java $JAVA_OPTS -jar ${project.build.finalName}.jar</cmd>
                     <resources>
                         <resource>
