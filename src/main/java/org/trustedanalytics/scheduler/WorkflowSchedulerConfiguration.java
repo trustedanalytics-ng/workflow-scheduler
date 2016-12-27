@@ -52,18 +52,8 @@ public class WorkflowSchedulerConfiguration {
     @Value("${oozie.api.url:host}")
     private String oozieApiUrl;
 
-    @Value("${artifact}")
-    private String artifactId;
-
-    @Value("${version}")
-    private String projectVersion;
-
-    @Value("${signature}")
-    private String signature;
-
     @Autowired
     private HdfsConfigProvider hdfsConfigProvider;
-
 
     @Bean
     public JobContext jobContext() {
@@ -99,13 +89,6 @@ public class WorkflowSchedulerConfiguration {
             ks.load(fis, clouderaConfiguration.getStorePassword().toCharArray());
         }
         return SSLContexts.custom().loadTrustMaterial(ks).build();
-    }
-
-    @Bean
-    public AppInfo appInfo() {
-        return new AppInfo(artifactId
-                ,projectVersion
-                ,signature);
     }
 
 }

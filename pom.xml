@@ -1,11 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.10</version>
+    <version>0.6.11</version>
     <parent>
         <groupId>org.trustedanalytics</groupId>
         <artifactId>trustedanalytics-cloud-parent</artifactId>
@@ -150,43 +150,25 @@
                 </exclusion>
             </exclusions>
         </dependency>
-    <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/buildnumber-maven-plugin -->
-    	<dependency>
-	    <groupId>org.codehaus.mojo</groupId>
-	    <artifactId>buildnumber-maven-plugin</artifactId>
-	    <version>1.4</version>
-	</dependency>
 
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>src/cloudfoundry</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
             </resource>
         </resources>
         <plugins>
-        <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-            <execution>
-               <phase>validate</phase>
-                 <goals>
-                 <goal>create</goal>
-                 </goals>
-                 </execution>
-                </executions>
-                <configuration>
-                <doCheck>true</doCheck>
-                 <doUpdate>false</doUpdate>
-                </configuration>
+  	        <plugin>
+                  <groupId>pl.project13.maven</groupId>
+                  <artifactId>git-commit-id-plugin</artifactId>
+	          <version>2.2.1</version>
+	          <configuration>
+		      <!-- when the build is triggered while the repo is in "dirty state", append this suffix -->
+                   <dirty>-dirty</dirty>
+              </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -212,29 +194,9 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>cp</executable>
-                    <arguments>
-                        <argument>target/classes/manifest.yml</argument>
-                        <argument>manifest.yml</argument>
-                    </arguments>
-                </configuration>
             </plugin>
            <plugin>
             <groupId>com.spotify</groupId>
@@ -256,7 +218,6 @@
                         <JAVA_OPTS>-Xss228k -Xmx512m -XX:MetaspaceSize=128m</JAVA_OPTS>                        
 			<VERSION>${project.version}</VERSION>
 			<ARTIFACT>${project.artifactId}</ARTIFACT>
-			<SIGNATURE>${buildNumber}</SIGNATURE>
                     </env>
                     <useConfigFile>true</useConfigFile>
                 </configuration>

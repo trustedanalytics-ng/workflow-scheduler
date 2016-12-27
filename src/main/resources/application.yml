@@ -48,6 +48,12 @@ flyway.initOnMigrate: true
 
 endpoints.enabled: false
 endpoints.health.enabled: true
+endpoints.info.enabled: true
+endpoints.info.sensitive: false
+
+info.version: ${version}
+info.artifact: ${artifact}
+
 spring.datasource.platform: cloud
 spring.jpa.database: POSTGRESQL
 spring.datasource: platform=postgres

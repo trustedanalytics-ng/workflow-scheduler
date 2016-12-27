@@ -56,7 +56,6 @@ public class WorkflowSchedulerController {
     private final WorkflowSchedulerConfigurationProvider configurationProvider;
     private final SqoopImportJobValidator sqoopImportJobValidator;
     private final OozieScheduledJobValidator oozieScheduledJobValidator;
-    private final AppInfo appInfo;
 
 
     @Autowired
@@ -66,8 +65,7 @@ public class WorkflowSchedulerController {
                                        OozieJobFilter oozieJobFilter,
                                        WorkflowSchedulerConfigurationProvider configurationProvider,
                                        SqoopImportJobValidator sqoopImportJobValidator,
-                                       OozieScheduledJobValidator oozieScheduledJobValidator,
-                                       AppInfo appInfo) {
+                                       OozieScheduledJobValidator oozieScheduledJobValidator) {
         this.oozieClient = oozieClient;
         this.oozieService = oozieService;
         this.oozieJobRepository = oozieJobRepository;
@@ -75,7 +73,6 @@ public class WorkflowSchedulerController {
         this.configurationProvider = configurationProvider;
         this.sqoopImportJobValidator = sqoopImportJobValidator;
         this.oozieScheduledJobValidator = oozieScheduledJobValidator;
-        this.appInfo = appInfo;
     }
 
     @InitBinder("sqoopScheduledImportJob")
@@ -214,11 +211,6 @@ public class WorkflowSchedulerController {
     public WorkflowSchedulerConfigurationEntity getConfiguration(
         @RequestParam(value = "org") String org) {
         return configurationProvider.getConfiguration(org);
-    }
-
-    @RequestMapping(value = "/info", method = GET, produces = APPLICATION_JSON_VALUE)
-    public AppInfo getInfo() {
-        return appInfo;
     }
 
 }
