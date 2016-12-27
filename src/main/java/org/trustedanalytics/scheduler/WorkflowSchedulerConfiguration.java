@@ -52,12 +52,14 @@ public class WorkflowSchedulerConfiguration {
     @Value("${oozie.api.url:host}")
     private String oozieApiUrl;
 
-
-    @Value("${project.ArtifactId}")
+    @Value("${artifact}")
     private String artifactId;
 
-    @Value("${project.version}")
+    @Value("${version}")
     private String projectVersion;
+
+    @Value("${signature}")
+    private String signature;
 
     @Autowired
     private HdfsConfigProvider hdfsConfigProvider;
@@ -101,7 +103,9 @@ public class WorkflowSchedulerConfiguration {
 
     @Bean
     public AppInfo appInfo() {
-        return new AppInfo(artifactId,projectVersion,null);
+        return new AppInfo(artifactId
+                ,projectVersion
+                ,signature);
     }
 
 }

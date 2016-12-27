@@ -4,7 +4,7 @@ spring:
 server.port: 8080
 
 security:
-  ignored: /rest/**,/test/**,/*.js,/sdoc.jsp,/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*,/v2/api-docs,/health
+  ignored: /rest/**,/test/**,/*.js,/sdoc.jsp,/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*,/v2/api-docs,/health,/info
 
 logging:
   level:
@@ -32,10 +32,10 @@ spring:
   profiles: cloud
 
 security:
-  ignored: /test/**,/*.js,/sdoc.jsp,/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*,/v2/api-docs,/health
+  ignored: /test/**,/*.js,/sdoc.jsp,/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*,/v2/api-docs,/health,/info
 
 spring.oauth2.resource:
-  id: cloud_controller
+  id: tap
   jwt:
     keyUri: ${vcap.services.sso.credentials.tokenKey}
 

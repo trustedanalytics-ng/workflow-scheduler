@@ -25,5 +25,5 @@ import lombok.Data;
 public class AppInfo {
     String name;
     String version;
-    String commit;
+    String signature;
 }
