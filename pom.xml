@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.11</version>
+    <version>0.6.12</version>
     <parent>
         <groupId>org.trustedanalytics</groupId>
         <artifactId>trustedanalytics-cloud-parent</artifactId>
@@ -15,12 +15,13 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-       <jacoco-measurement-instructions>0.245</jacoco-measurement-instructions>
-       <jacoco-measurement-branches>0.0417</jacoco-measurement-branches>
-       <jacoco-measurement-lines>0.508</jacoco-measurement-lines>
-       <jacoco-measurement-classes>0.5512</jacoco-measurement-classes>
+        <jacoco-measurement-instructions>0.245</jacoco-measurement-instructions>
+        <jacoco-measurement-branches>0.0417</jacoco-measurement-branches>
+        <jacoco-measurement-lines>0.508</jacoco-measurement-lines>
+        <jacoco-measurement-classes>0.5512</jacoco-measurement-classes>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <docker.imageName>${project.artifactId}</docker.imageName>
+        <build.time>${maven.build.timestamp}</build.time>
     </properties>
 
     <dependencies>
@@ -104,7 +105,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-	</dependency>
+        </dependency>
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -157,18 +158,33 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>false</filtering>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
-  	        <plugin>
-                  <groupId>pl.project13.maven</groupId>
-                  <artifactId>git-commit-id-plugin</artifactId>
-	          <version>2.2.1</version>
-	          <configuration>
-		      <!-- when the build is triggered while the repo is in "dirty state", append this suffix -->
-                   <dirty>-dirty</dirty>
-              </configuration>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.tags</includeOnlyProperty>
+                        <includeOnlyProperty>^git.branch</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.*</includeOnlyProperty>
+                    </includeOnlyProperties>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -198,10 +214,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-           <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>docker-maven-plugin</artifactId>
-            <version>0.4.12</version>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.12</version>
                 <configuration>
                     <imageName>${docker.imageName}</imageName>
                     <baseImage>tapimages:8080/tap-base-java:java8-jessie</baseImage>
@@ -215,14 +231,14 @@
                     </resources>
                     <env>
                         <PORT>8080</PORT>
-                        <JAVA_OPTS>-Xss228k -Xmx512m -XX:MetaspaceSize=128m</JAVA_OPTS>                        
-			<VERSION>${project.version}</VERSION>
-			<ARTIFACT>${project.artifactId}</ARTIFACT>
+                        <JAVA_OPTS>-Xss228k -Xmx512m -XX:MetaspaceSize=128m</JAVA_OPTS>
+                        <VERSION>${project.version}</VERSION>
+                        <ARTIFACT>${project.artifactId}</ARTIFACT>
                     </env>
                     <useConfigFile>true</useConfigFile>
                 </configuration>
-          </plugin>
-          </plugins>
+            </plugin>
+        </plugins>
     </build>
 </project>
 
