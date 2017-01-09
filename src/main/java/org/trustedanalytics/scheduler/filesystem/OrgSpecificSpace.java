@@ -32,4 +32,8 @@ public interface OrgSpecificSpace {
     String getNameNode();
 
     void createFile(Path path, InputStream in);
+
+    boolean fileExists(Path path) throws IOException;
+
+    boolean createDirectory(Path ooziePath) throws IOException;
 }

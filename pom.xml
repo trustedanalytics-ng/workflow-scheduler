@@ -5,7 +5,7 @@
     <groupId>org.trustedanalytics</groupId>
     <artifactId>workflow-scheduler</artifactId>
     <packaging>jar</packaging>
-    <version>0.6.12</version>
+    <version>0.6.13</version>
     <parent>
         <groupId>org.trustedanalytics</groupId>
         <artifactId>trustedanalytics-cloud-parent</artifactId>
@@ -17,7 +17,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <jacoco-measurement-instructions>0.245</jacoco-measurement-instructions>
         <jacoco-measurement-branches>0.0417</jacoco-measurement-branches>
-        <jacoco-measurement-lines>0.508</jacoco-measurement-lines>
+        <jacoco-measurement-lines>0.500</jacoco-measurement-lines>
         <jacoco-measurement-classes>0.5512</jacoco-measurement-classes>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <docker.imageName>${project.artifactId}</docker.imageName>

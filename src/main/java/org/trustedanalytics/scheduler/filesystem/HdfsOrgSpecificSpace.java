@@ -107,6 +107,16 @@ public class HdfsOrgSpecificSpace implements OrgSpecificSpace {
             throw new IllegalStateException("Unable to create file: " + path, ex);
         }
     }
+
+    @Override
+    public boolean fileExists(Path path) throws IOException {
+        return fileSystem.exists(path);
+    }
+
+    @Override
+    public boolean createDirectory(Path ooziePath) throws IOException {
+        return fileSystem.mkdirs(ooziePath);
+    }
 }
 
 

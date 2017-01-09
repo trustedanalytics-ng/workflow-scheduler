@@ -15,10 +15,12 @@
  */
 package org.trustedanalytics.scheduler.utils;
 
+import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpace;
+
 public class ConstantJobIdSupplier implements JobIdSupplier {
 
     @Override
-    public String get(String name) {
+    public String get(String name, OrgSpecificSpace space) {
         return name + "-timestamp";
     }
 }

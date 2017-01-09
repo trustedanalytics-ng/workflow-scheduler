@@ -27,13 +27,8 @@ public class UniqueId {
     @Getter
     private String id;
 
-    public static synchronized UniqueId generate(String name) {
+    public static UniqueId generate(String name) {
         UniqueId uid = new UniqueId(name);
-        try {
-            Thread.sleep(1001);
-        } catch (InterruptedException e) {
-            return null;
-        }
         return uid;
     }
 

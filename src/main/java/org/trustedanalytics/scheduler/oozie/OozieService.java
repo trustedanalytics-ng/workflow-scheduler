@@ -60,13 +60,16 @@ public class OozieService {
 
     public OozieJobId sqoopImportJob(SqoopImportJob job, String orgId) throws IOException {
 
-        String jobId = idSupplier.get(job.getName());
 
         jobMapper.adjust(job);
         jobContext.resolveQueueName(orgId);
 
         final OrgSpecificSpace space = orgSpecificSpaceFactory.getOrgSpecificSpace(orgId);
+
+        String jobId = idSupplier.get(job.getName(), space);
         final Path ooziePath = space.resolveOozieDir(jobId, job.getAppPath());
+        space.createDirectory(ooziePath);
+
         final Path targetPath = space.resolveSqoopTargetDir(jobId, job.getSqoopImport().getTargetDir());
 
         job.getSqoopImport().setTargetDir(targetPath.toUri().toString());
@@ -80,13 +83,14 @@ public class OozieService {
 
     public OozieJobId sqoopScheduledImportJob(SqoopScheduledImportJob job, String orgId) throws IOException {
 
-        String jobId = idSupplier.get(job.getName());
-
         jobMapper.adjust(job);
 
         final OrgSpecificSpace space = orgSpecificSpaceFactory.getOrgSpecificSpace(orgId);
 
+        String jobId = idSupplier.get(job.getName(), space);
         final Path ooziePath = space.resolveOozieDir(jobId, job.getAppPath());
+        space.createDirectory(ooziePath);
+
         final Path targetPath = space.resolveSqoopTargetDir(jobId, job.getSqoopImport().getTargetDir());
 
         job.getSqoopImport().setTargetDir("${targetDir}");

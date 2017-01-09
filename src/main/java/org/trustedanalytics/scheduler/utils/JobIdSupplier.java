@@ -16,6 +16,10 @@
 
 package org.trustedanalytics.scheduler.utils;
 
+import org.trustedanalytics.scheduler.filesystem.OrgSpecificSpace;
+
+import java.io.IOException;
+
 public interface JobIdSupplier {
-    String get(String name);
+    String get(String name, OrgSpecificSpace space) throws IOException;
 }

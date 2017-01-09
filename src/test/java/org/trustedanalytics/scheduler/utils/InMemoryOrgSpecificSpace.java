@@ -84,6 +84,19 @@ public class InMemoryOrgSpecificSpace implements OrgSpecificSpace {
         }
     }
 
+    @Override
+    public boolean fileExists(Path path) throws IOException {
+        return files.containsKey(path);
+    }
+
+    @Override
+    public boolean createDirectory(Path ooziePath) throws IOException {
+        if (files.containsKey(ooziePath))
+            return false;
+        files.put(ooziePath,"");
+        return true;
+    }
+
     private Path resolveDir(String path, String... more) {
         return Arrays.asList(more)
                 .stream()
