@@ -15,15 +15,15 @@
  */
 package org.trustedanalytics.scheduler.filesystem;
 
+import org.trustedanalytics.scheduler.security.TokenProvider;
+import org.trustedanalytics.scheduler.utils.StreamUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.AccessControlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.trustedanalytics.scheduler.security.TokenProvider;
-import org.trustedanalytics.scheduler.utils.StreamUtils;
-
 import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class HdfsOrgSpecificSpace implements OrgSpecificSpace {
         Objects.requireNonNull(orgId);
 
         this.fileSystem = fileSystem;
-        this.root = new Path(String.format(fileSystem.getUri() + "/org/%s/", orgId));
+        this.root = new Path(String.format("%s/org/%s/", fileSystem.getUri(), orgId));
         this.tokenProvider = tokenProvider;
     }
 

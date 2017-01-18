@@ -15,20 +15,18 @@
  */
 package org.trustedanalytics.scheduler;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.trustedanalytics.scheduler.config.Database;
+import org.trustedanalytics.scheduler.filesystem.HdfsConfigProvider;
+import org.trustedanalytics.scheduler.security.TokenProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.trustedanalytics.scheduler.filesystem.HdfsConfigProvider;
-import org.trustedanalytics.scheduler.security.TokenProvider;
 
 @Service
 public class WorkflowSchedulerConfigurationProvider {
@@ -61,7 +59,7 @@ public class WorkflowSchedulerConfigurationProvider {
             .databases(databases)
             .timezones(zones)
             .organizationDirectory(
-                String.format(hdfsConfigProvider.getHdfsUri() + "/org/%s/user/%s/", orgId, tokenProvider.getUserId()))
+                String.format("%s/org/%s/user/%s/", hdfsConfigProvider.getHdfsUri(), orgId, tokenProvider.getUserId()))
             .minimumFrequencyInSeconds(scheduleMinimumFrequency)
             .build();
     }
